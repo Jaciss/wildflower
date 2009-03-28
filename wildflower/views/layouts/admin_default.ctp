@@ -71,6 +71,8 @@
                 __('Posts', true) => array('controller' => 'wild_posts'),
                 __('Categories', true) => array('controller' => 'wild_categories'),
                 __('Files', true) => array('controller' => 'wild_assets'),
+		__('Permissions', true) => array('controller' => 'acl'),
+		__('Groups', true) => array('controller' => 'wild_groups'),
             ), array('id' => 'nav'));
         ?>
     </div>

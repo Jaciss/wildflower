@@ -4,7 +4,7 @@ App::import('Core', 'l10n');
 
 class AppController extends Controller {
 
-	public $components = array('Auth', 'Cookie', 'RequestHandler', 'Seo');
+	public $components = array('Auth', 'Acl', 'Cookie', 'RequestHandler', 'Seo');
 	public $currentUserId;
 	public $helpers = array('Html', 'Wildflower.Htmla', 'Form', 'Javascript', 'Wild', 'Navigation', 'PartialLayout', 'Textile');
 	public $homePageId;
@@ -51,10 +51,12 @@ class AppController extends Controller {
         $prefix = Configure::read('Wildflower.prefix');
         $this->Auth->loginAction = "/$prefix/login";
         $this->Auth->logoutAction = array('plugin' => 'wildflower', 'prefix' => $prefix, 'controller' => 'wild_users', 'action' => 'logout');
-        $this->Auth->autoRedirect = false;
+        //$this->Auth->autoRedirect = false;
         $this->Auth->allow('update_root_cache'); // requestAction() actions need to be allowed
-        $this->Auth->loginRedirect = "/$prefix";
-        
+        //$this->Auth->loginRedirect = "/$prefix";
+	//$this->Auth->allowedActions = array('*');
+        $this->Auth->actionPath = 'controllers/';	//root node aco (cmdline: cake acl create aco root controllers)
+
 		//$this->_assertDatabaseConnection();
 
 		$this->_configureSite();
@@ -65,7 +67,7 @@ class AppController extends Controller {
 			$this->layout = 'admin_default';
 		} else {
 			$this->layout = 'default';
-			$this->Auth->allow('*');
+			$this->Auth->allow('display');
 		}
 		$this->isAuthorized = $this->Auth->isAuthorized();
 		
@@ -321,7 +323,7 @@ class AppController extends Controller {
     }
 	
 	function wf_create_preview() {
-        $cacheDir = Configure::read('Wildflower.previewCache') . DS;
+        $cacheDir = Configure::read('Wildflower.previewCache');
         
         // Create a unique file name
         $fileName = time();
@@ -352,6 +354,7 @@ class AppController extends Controller {
         $adminRoute = Configure::read('Routing.admin');
         $wfPrefix = Configure::read('Wildflower.prefix');
         if (isset($this->params[$adminRoute]) && $this->params[$adminRoute] === $wfPrefix) return true;
+		if (isset($this->params['prefix']) && $this->params['prefix'] === 'admin') return true;
         return (isset($this->params['prefix']) && $this->params['prefix'] === $wfPrefix);
     }
 
@@ -401,7 +404,7 @@ class AppController extends Controller {
       * @return array
       */
      protected function __readPreviewCache($fileName) {
-         $previewCachePath = Configure::read('Wildflower.previewCache') . DS . $fileName . '.json';
+         $previewCachePath = Configure::read('Wildflower.previewCache') . $fileName . '.json';
          if (!file_exists($previewCachePath)) {
              return trigger_error("Cache file $previewCachePath does not exist!");
          }
@@ -520,3 +523,4 @@ class AppController extends Controller {
     }
 	
 }
+

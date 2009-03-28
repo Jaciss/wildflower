@@ -9,6 +9,10 @@
  */
 class WildUser extends AppModel {
 	
+	var $name = 'WildUser';
+	var $belongsTo = array('WildGroup');
+	var $actsAs = array('Acl' => array('requester'));
+	
 	public $hasMany = array(
 	    'WildPage',
 	    'WildPost',
@@ -60,5 +64,19 @@ class WildUser extends AppModel {
         // }
         return true;
     }
-
+    
+    function parentNode() {
+	if (!$this->id && empty($this->data)) {
+		return null;
+	}
+	$data = $this->data;
+	if (empty($this->data)) {
+		$data = $this->read();
+	}
+	if (!$data['User']['wild_group_id']) {
+		return null;
+	} else {
+		return array('Group' => array('id' => $data['User']['wild_group_id']));
+	}
+    }
 }

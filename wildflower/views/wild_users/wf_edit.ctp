@@ -13,6 +13,7 @@ echo $navigation->create(array(
     $form->input('name', array('between' => '<br />', 'tabindex' => '1')),
     $form->input('email', array('between' => '<br />', 'tabindex' => '2')),
     $form->input('login', array('between' => '<br />', 'tabindex' => '3')),
+    $form->input('wild_group_id', array('label'=>'Group', 'between' => '<br />', 'tabindex' => '4')),
     '<div class="hidden">',
     $form->hidden('id'),
     '</div>',
