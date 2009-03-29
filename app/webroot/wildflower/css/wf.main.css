@@ -1277,3 +1277,14 @@ select {
     .action_delete:hover {
         background-color: transparent;
     }
+
+/*for cake-generated table prettiness*/
+table{border:1px solid #ddd;width:100%}
+td{padding-left:.5em;padding-right:.5em}
+th{
+    background:#445566;
+    color:#fff;
+    border-bottom:1px solid #ddd;
+}
+th a{color:#fff}
+.altrow{background:#eef5fb}
