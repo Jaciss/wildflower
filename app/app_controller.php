@@ -51,10 +51,10 @@ class AppController extends Controller {
         $prefix = Configure::read('Wildflower.prefix');
         $this->Auth->loginAction = "/$prefix/login";
         $this->Auth->logoutAction = array('plugin' => 'wildflower', 'prefix' => $prefix, 'controller' => 'wild_users', 'action' => 'logout');
-        //$this->Auth->autoRedirect = false;
+        $this->Auth->autoRedirect = false;
         $this->Auth->allow('update_root_cache'); // requestAction() actions need to be allowed
         //$this->Auth->loginRedirect = "/$prefix";
-	//$this->Auth->allowedActions = array('*');
+        //$this->Auth->allowedActions = array('*');
         $this->Auth->actionPath = 'controllers/';	//root node aco (cmdline: cake acl create aco root controllers)
 
 		//$this->_assertDatabaseConnection();
@@ -67,7 +67,7 @@ class AppController extends Controller {
 			$this->layout = 'admin_default';
 		} else {
 			$this->layout = 'default';
-			$this->Auth->allow('display');
+			$this->Auth->allow('index');
 		}
 		$this->isAuthorized = $this->Auth->isAuthorized();
 		
