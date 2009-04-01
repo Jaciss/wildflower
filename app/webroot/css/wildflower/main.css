@@ -270,3 +270,6 @@ a {
         color: #fff;
         background-color: transparent;
     }
+	
+.error-message{color:#f00}
+.form-error{border:1px solid #f00}

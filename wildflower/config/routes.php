@@ -70,6 +70,9 @@ Router::connect('/wildflower/search', array('controller' => 'wild_dashboards', '
 Router::connect('/wf/acl', array('controller' => 'acl', 'action' => 'acl', 'index', 'prefix' => 'admin'));
 Router::connect('/wf/acl/*', array('controller' => 'acl', 'action' => 'acl', 'prefix' => 'admin'));
 
+// User registration
+Router::connect('/users/:action', array('controller' => 'wild_users'));
+
 WildflowerRootPagesCache::connect();
 
 /**

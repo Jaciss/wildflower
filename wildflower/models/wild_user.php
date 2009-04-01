@@ -18,6 +18,40 @@ class WildUser extends AppModel {
 	    'WildPost',
 	);
 
+    var $validate = array(
+		'name' => array('/^[a-zA-Z][a-zA-Z ]*$/',
+            'length' => array(
+            'rule' => array('between', 1, 255),
+            'allowEmpty' => false,
+            'required' => true
+        )),
+		'login' => array('/^[a-zA-Z0-9_-]*$/',
+			'unique'=>array(
+				'rule' => 'isUnique',
+				'on' => 'create',
+				'message' => 'This username is already taken.'
+			)
+		),
+		'email' => array(
+			'valid' => array(
+				'rule' => 'email',
+                'required' => true,
+				'message' => 'Please enter a valid email address.',
+			),
+			'unique' => array(
+				'rule' => 'isUnique',
+				'on' => 'create',
+				'message' => 'This email address is already registered.'
+			),
+		),
+		'password' => array(
+			'rule' => array('minLength', '8'),  
+			'message' => 'Passwords must be at least 8 characters long.'),
+		'confirm_password' => array(
+			'rule' => array('minLength', '8'),  
+			'message' => 'Passwords must be at least 8 characters long.')
+	);
+    /*
     public $validate = array(
         'name' => array(
             'rule' => array('between', 1, 255),
@@ -45,7 +79,7 @@ class WildUser extends AppModel {
 			'required' => true,
 			'message' => 'Please enter a valid email address'
 		)
-    );
+    );*/
 
     /**
      * Does password and password confirm match?
@@ -79,4 +113,18 @@ class WildUser extends AppModel {
 		return array('Group' => array('id' => $data['User']['wild_group_id']));
 	}
     }
+    
+    /**
+    * Creates an activation hash for the current user.
+    *
+    *      @param Void
+    *      @return String activation hash.
+   */
+   function getActivationHash()
+   {
+           if (!isset($this->id)) {
+                   return false;
+           }
+           return substr(Security::hash(Configure::read('Security.salt') . $this->field('created') . date('Ymd')), 0, 8);
+   }
 }

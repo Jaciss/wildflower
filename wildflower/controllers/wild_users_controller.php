@@ -1,9 +1,12 @@
 <?php
+uses('sanitize');
 class WildUsersController extends AppController {
 
     public $helpers = array('Wildflower.List', 'Time');
     public $pageTitle = 'User Accounts';
 
+    var $components = array('Email');
+    
     /**
      * @TODO shit code, refactor
      *
@@ -150,5 +153,36 @@ class WildUsersController extends AppController {
         }
         $this->render('wf_change_password');
     }
-
+    
+    /**
+    * Allows a user to sign up for a new account
+    * @link http://www.jonnyreeves.co.uk/2008/05/user-registration-with-cakephp-12-and-auth-component/
+    */
+    function register(){
+        // If the user submitted the form…
+        if (!empty($this->data)){
+            // Turn the supplied password into the correct Hash.
+            // and move into the 'password' field so it will get saved.
+            App::import('Security');
+            $this->data['WildUser']['password'] = Security::hash($this->data['WildUser']['passwrd'], null, true);
+            $this->data['WildUser']['wild_group_id'] = 3;
+            // Always Sanitize any data from users!
+            $this->WildUser->data = Sanitize::clean($this->data);
+            if ($this->WildUser->save()){
+                // Use a private method to send a confirmation email
+                //$this->__sendConfirmationEmail();
+                
+                // Success! Redirect to a thanks page.
+                $this->redirect('/users/thanks');
+            }
+            // The plain text password supplied has been hashed into the 'password' field so
+            // should now be nulled so it doesn't get render in the HTML if the save() fails
+            $this->data['WildUser']['passwrd'] = null;
+            $this->data['WildUser']['confirm_password'] = null;
+        }
+    }
+    
+    function thanks(){
+        //hooks?
+    }
 }
