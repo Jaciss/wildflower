@@ -71,7 +71,7 @@ Router::connect('/wf/acl', array('controller' => 'acl', 'action' => 'acl', 'inde
 Router::connect('/wf/acl/*', array('controller' => 'acl', 'action' => 'acl', 'prefix' => 'admin'));
 
 // User registration
-Router::connect('/users/:action', array('controller' => 'wild_users'));
+Router::connect('/users/:action/*', array('controller' => 'wild_users'));
 
 WildflowerRootPagesCache::connect();
 

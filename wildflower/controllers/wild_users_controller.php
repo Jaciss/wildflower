@@ -161,16 +161,20 @@ class WildUsersController extends AppController {
     function register(){
         // If the user submitted the form…
         if (!empty($this->data)){
+            // do we require a confirmation email?
+            $reqEmailConf = Configure::read('Wildflower.settings.require_email_confirmation') == 'on';
+            
             // Turn the supplied password into the correct Hash.
             // and move into the 'password' field so it will get saved.
             App::import('Security');
             $this->data['WildUser']['password'] = Security::hash($this->data['WildUser']['passwrd'], null, true);
-            $this->data['WildUser']['wild_group_id'] = 3;
+            if($reqEmailConf) $this->data['WildUser']['wild_group_id'] = 3;
+            else $this->data['WildUser']['wild_group_id'] = 4;
             // Always Sanitize any data from users!
             $this->WildUser->data = Sanitize::clean($this->data);
             if ($this->WildUser->save()){
                 // Use a private method to send a confirmation email
-                //$this->__sendConfirmationEmail();
+                if($reqEmailConf) $this->__sendConfirmationEmail($this->WildUser->getLastInsertID());
                 
                 // Success! Redirect to a thanks page.
                 $this->redirect('/users/thanks');
@@ -184,5 +188,53 @@ class WildUsersController extends AppController {
     
     function thanks(){
         //hooks?
+    }
+    
+    /**
+    * Send out an activation email to the user.id specified by $user_id
+    *  @param Int $user_id User to send activation email to
+    *  @return Boolean indicates success
+    *  @link http://www.jonnyreeves.co.uk/2008/06/cakephp-activating-user-account-via-email/
+    */
+    function __sendConfirmationEmail($user_id) {
+        $user = $this->WildUser->find(array('WildUser.id' => $user_id), array('WildUser.email', 'WildUser.login'), null, false);
+        if ($user === false) {
+            debug(__METHOD__." failed to retrieve User data for user.id: {$user_id}");
+            return false;
+        }
+        $link = 'http://' . env('HTTP_HOST') . str_replace('register','activate',env('REQUEST_URI')). DS . $user_id . DS . $this->WildUser->getActivationHash();
+        //echo 'activate link: <a href="'.$link.">$link</a>";
+        
+        // Set data for the "view" of the Email
+        $this->set('activate_url', $link);
+        $this->set('login', $this->data['WildUser']['login']);
+        
+        $this->Email->to = $user['WildUser']['email'];
+        $this->Email->subject = Configure::read('Wildflower.settings.site_name') . ' - Please confirm your email address';
+        $this->Email->from = Configure::read('Wildflower.settings.contact_email');
+        $this->Email->template = 'user_confirm';
+        $this->Email->sendAs = 'text';   // you probably want to use both :)   
+        return $this->Email->send();
+    }
+    
+    /**
+    * Activates a user account from an incoming link
+    *
+    *  @param Int $user_id User.id to activate
+    *  @param String $in_hash Incoming Activation Hash from the email
+    *  @link http://www.jonnyreeves.co.uk/2008/06/cakephp-activating-user-account-via-email/
+    */
+    function activate($user_id = null, $in_hash = null) {        
+        $this->WildUser->id = $user_id;
+        if ($this->WildUser->exists() && ($in_hash == $this->WildUser->getActivationHash())){
+            // Update the active flag in the database
+            //$this->User->saveField(‘active’, 1);
+            $this->WildUser->saveField('wild_group_id', 4);
+            
+            // Let the user know they can now log in!
+            $this->Session->setFlash('Your account has been activated, please log in.');
+            $this->redirect('login');
+        }
+        // Activation failed, render ‘/views/user/activate.ctp’ which should tell the user.
     }
 }

@@ -107,10 +107,10 @@ class WildUser extends AppModel {
 	if (empty($this->data)) {
 		$data = $this->read();
 	}
-	if (!$data['User']['wild_group_id']) {
+	if (!$data['WildUser']['wild_group_id']) {
 		return null;
 	} else {
-		return array('Group' => array('id' => $data['User']['wild_group_id']));
+		return array('WildGroup' => array('id' => $data['WildUser']['wild_group_id']));
 	}
     }
     

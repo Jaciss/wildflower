@@ -1,5 +1,6 @@
+<h2 class="section">Add Setting</h2>
 <?php
-echo $form->create('Setting'),
+echo $form->create('WildSetting',array('url' => $html->url(array('action' => 'wf_add', 'base' => false)))),
      $form->input('name'),
      $form->input('value'),
      $form->input('description'),

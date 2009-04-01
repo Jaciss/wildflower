@@ -24,7 +24,8 @@
             if (Configure::read('debug') > 0) {
                 $options['options']['debug'] = 'Dump to screen';
             }
-        } else if ($setting['WildSetting']['name'] == 'cache') {
+        } else if ($setting['WildSetting']['name'] == 'cache' ||
+                   $setting['WildSetting']['name'] == 'require_email_confirmation') {
             $options['options'] = array('on' => 'On', 'off' => 'Off');
         }
         

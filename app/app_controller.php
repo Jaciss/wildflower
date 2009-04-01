@@ -54,7 +54,7 @@ class AppController extends Controller {
         $this->Auth->autoRedirect = false;
         $this->Auth->allow('update_root_cache'); // requestAction() actions need to be allowed
         //$this->Auth->loginRedirect = "/$prefix";
-        $this->Auth->allowedActions = array('register','thanks');
+        $this->Auth->allowedActions = array('register', 'thanks', 'activate');
         $this->Auth->actionPath = 'controllers/';	//root node aco (cmdline: cake acl create aco root controllers)
 
 		//$this->_assertDatabaseConnection();
