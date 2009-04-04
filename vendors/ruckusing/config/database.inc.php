@@ -26,11 +26,11 @@ $ruckusing_db_config = array(
 	),
 	'test' 					=> array(
 			'type' 			=> 'mysql',
-			'host' 			=> 'localhost',
+			'host' 			=> $cakeDbConfig->default['host'],
 			'port'			=> 3306,
-			'database' 	=> 'php_migrator_test',
-			'user' 			=> 'root',
-			'password' 	=> ''
+			'database'		=> $cakeDbConfig->test_suite['database'],
+			'user' 			=> $cakeDbConfig->test_suite['login'],
+			'password' 		=> $cakeDbConfig->test_suite['password']
 	),
 	'production' 		=> array(
 			'type' 			=> 'mysql',
