@@ -14,7 +14,6 @@
         // Load your CSS files here
         $html->css(array(
             '/wildflower/css/wf.main',
-            'ct.admin',
         )),
         // TinyMCE 
         // @TODO load only on pages with editor?
@@ -81,10 +80,8 @@
 </div>
 <?php else: ?>
 <ul id="editor_mode_header">
-    <li><?php echo $html->link('Go to all ' . r('wild_', '', $this->params['controller']), array('action' => 'index')); ?></li>
-    <?php if ($this->data[Inflector::singularize(Inflector::camelize($this->params['controller']))]['draft'] == 0): ?>
-        <li><small>(Published at: <?php if (isset($publishedLink)) echo $publishedLink; ?>)</small></li>
-    <?php endif; ?>
+    <li><?php echo $html->link('Go to all pages', array('action' => 'index')); ?></li>
+    <li><small>(Published at: <?php if (isset($publishedLink)) echo $publishedLink; ?>)</small></li>
 </ul>
 <?php endif; ?>
 
@@ -123,4 +120,5 @@
 
 </body>
 </html>
+
 
