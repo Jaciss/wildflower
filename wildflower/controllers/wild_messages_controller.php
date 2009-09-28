@@ -12,11 +12,18 @@ class WildMessagesController extends AppController {
         )
 	);
 	
-	function wf_index() {
-	    $this->pageTitle = 'Messages from contact form';
-	    $messages = $this->paginate('WildMessage');
-	    $this->set(compact('messages'));
-	}
+    function wf_index() {
+        $this->pageTitle = 'Contact form messages';
+        $messages = $this->paginate('WildMessage');
+        $this->set(compact('messages'));
+    }   
+    
+    function wf_spam() {
+        $this->pageTitle = 'Spam contact form messages';
+        $messages = $this->paginate('WildMessage', 'spam = 1');
+        $this->set(compact('messages'));
+        $this->render('wf_index');
+    }
 	
 	function wf_view($id = null) {
 	    $message = $this->WildMessage->findById($id);
@@ -27,12 +34,19 @@ class WildMessagesController extends AppController {
     function index() {
         if (!empty($this->data)) {
             $this->WildMessage->spamCheck = true;
-            if ($this->WildMessage->save($this->data)) {
+            if ($message = $this->WildMessage->save($this->data)) {
+                if ($message['WildMessage']['spam'] == 1) {
+                    return $this->redirect('/contact');
+                }
+                
                 // Send email to site owner
         		$this->Email->to = Configure::read('Wildflower.settings.contact_email');
         		$this->Email->from = $this->data[$this->modelClass]['email'];
         		$this->Email->replyTo = $this->data[$this->modelClass]['email'];
         		$this->Email->subject = Configure::read('Wildflower.settings.site_name') . ' contact form';
+                if (isset($this->data['WildMessage']['idea'])) {
+                    $this->Email->subject = Configure::read('Wildflower.settings.site_name') . ' IDEAS form';
+        		}
         		$this->Email->sendAs = 'text';
         		$this->Email->template = 'contact_form';
 
@@ -68,6 +82,21 @@ class WildMessagesController extends AppController {
         
         $this->populateContactPage();
         $this->render('contact');
+    }
+    
+    function wf_recheck_inbox_for_spam() {
+        $msgs = $this->WildMessage->find('all');
+        $movedToSpam = 0;
+        foreach ($msgs as $msg) {
+            if ($this->WildMessage->isSpam($msg)) {
+                $this->WildMessage->create($msg);
+                $this->WildMessage->saveField('spam', 1);
+                $movedToSpam++;
+            }
+        }
+        $messagesWord = ($movedToSpam == 1) ? 'message' : 'messages';
+        $this->Session->setFlash("Moved $movedToSpam $messagesWord to spam.");
+        $this->redirect(array('action' => 'index'));
     }
     
     function populateContactPage() {

@@ -8,11 +8,13 @@ class WildPostsController extends AppController {
 	    'Category', 
 	    'Tree', 
 	    'Time',
+	    'Paginator',
 	);
+	public $components = array('Email');
 	
 	/** Pagination options for the wf_index action **/
     public $paginate = array(
-        'limit' => 10,
+        'limit' => 12,
         'order' => array('WildPost.created' => 'desc'),
     );
 
@@ -39,16 +41,23 @@ class WildPostsController extends AppController {
     }
     
     /**
-     * View particular post's comments
+     * Manage post's comments
      * 
      */
-    function wf_comments($id = null) {
+    function wf_comments($id = null, $status = null) {
+        $spam = ($status == 'spam') ? 1 : 0;
+        $approved = ($status == 'unapproved') ? 0 : 1;
+        if ($spam) {
+            // Spam comments should show no matter of approval status
+            $approved = array(0, 1);
+        }
+        
         $this->data = $this->{$this->modelClass}->find('first', array(
             'conditions' => array('WildPost.id' => $id),
             'contain' => array(
                 'WildComment' => array(
                     'order' => 'WildComment.created DESC',
-                    'conditions' => array('WildComment.spam' => 0)
+                    'conditions' => array(compact('spam', 'approved'))
                 ),
                 'WildUser'
             )
@@ -68,20 +77,14 @@ class WildPostsController extends AppController {
     }
 
     /**
-     * Edit page
+     * Edit a post
      * 
-     * @param int $id post ID
+     * @param int $id
      */
     function wf_edit($id = null, $revisionNumber = null) {
-        if (empty($this->data)) {
-            $this->WildPost->contain(array('WildUser', 'WildCategory'));
-            $this->data = $this->WildPost->findById($id);
-            if (empty($this->data)) return $this->cakeError('object_not_found');
-        } else {
-            if ($this->WildPost->save($this->data)) {
-                return $this->redirect(array('action' => 'wf_edit', $this->WildPost->id));
-            }
-        }
+        $this->WildPost->contain(array('WildUser', 'WildCategory'));
+        $this->data = $this->WildPost->findById($id);
+        //var_dump($this->data);
         
         // If viewing a revision, merge with revision content
         if ($revisionNumber) {
@@ -99,10 +102,9 @@ class WildPostsController extends AppController {
         $categories = $this->WildPost->WildCategory->find('list', array('fields' => array('id', 'title')));
         $inCategories = Set::extract($this->data['WildCategory'], '{n}.id');
         
-        // Revisions
-        $revisions = $this->WildPost->getRevisions($id);
+        $categoryId = isset($inCategories[0]) ? $inCategories[0] : null;
         
-        $this->set(compact('isRevision', 'hasUser', 'isDraft', 'categories', 'inCategories', 'revisions'));
+        $this->set(compact('isRevision', 'hasUser', 'isDraft', 'categories', 'inCategories', 'categoryId'));
         $this->pageTitle = $this->data[$this->modelClass]['title'];
     }
     
@@ -134,6 +136,7 @@ class WildPostsController extends AppController {
     }
     
     function wf_update() {
+        //fb($this->data);
         $this->data[$this->modelClass]['wild_user_id'] = $this->getLoggedInUserId();
 
         // Publish?
@@ -162,7 +165,7 @@ class WildPostsController extends AppController {
 		
         if ($this->RequestHandler->isAjax()) {
             $this->WildPost->contain('WildUser');
-            $post = $this->WildPost->findById($this->WildPost->id);
+            $this->data = $post = $this->WildPost->findById($this->WildPost->id); // @TODO clean up
             $this->set(compact('post'));
             return $this->render('wf_update');
         }
@@ -232,7 +235,7 @@ class WildPostsController extends AppController {
         $this->pageTitle = 'Blog';
         
         $this->paginate = array(
-            'limit' => 10,
+            'limit' => 4,
             'order' => array('WildPost.created' => 'desc'),
             'conditions' => 'WildPost.draft = 0'
         );
@@ -312,7 +315,7 @@ class WildPostsController extends AppController {
             'WildUser', 
             'WildCategory',
             'WildComment' => array(
-                'conditions' => array('spam' => 0),
+                'conditions' => array('spam' => 0, 'approved' => 1),
             ),
         ));
         $post = $this->WildPost->findBySlugAndDraft($slug, 0);
@@ -349,17 +352,50 @@ class WildPostsController extends AppController {
     private function _acceptComment() {
         if (empty($this->data)) return; // Else we would have a redirect loop
         
+        if (Configure::read('Wildflower.settings.approve_comments')) {
+            $this->data['WildComment']['approved'] = 0;
+        }
+        
         $this->WildPost->WildComment->spamCheck = true;
         if ($this->WildPost->WildComment->save($this->data)) {
-            $this->Session->setFlash('Comment succesfuly added.');
             $postId = intval($this->data['WildComment']['wild_post_id']);
-            $postSlug = $this->WildPost->field('slug', "id = $postId");
-            $postLink = '/' . Configure::read('Wildflower.blogIndex') . "/$postSlug";
 
             // Clear post cache
             // @TODO find out better method
             // $cacheName = str_replace('-', '_', $postSlug);
             // clearCache($cacheName, 'views', '.php');
+            
+            // Email alert
+            // @TODO create a function in app_controller to be used in wild_messages too
+            $this->Email->to = Configure::read('Wildflower.settings.contact_email');
+    		$this->Email->from = $this->data['WildComment']['email'];
+    		$this->Email->replyTo = $this->data['WildComment']['email'];
+    		$this->Email->subject = Configure::read('Wildflower.settings.site_name') . ' - new comment from ' . $this->data['WildComment']['name'];
+    		$this->Email->sendAs = 'text';
+    		$this->Email->template = 'new_comment_notification';
+
+    		$this->set($this->data['WildComment']);
+    		$message = $this->data['WildComment']['content']; // @TODO remove Textile syntax - to plain text
+    		$this->set(compact('postId', 'message'));
+
+    		$this->Email->delivery = Configure::read('Wildflower.settings.email_delivery');
+    		if ($this->Email->delivery == 'smtp') {
+        		$this->Email->smtpOptions = array(
+                    'username' => Configure::read('Wildflower.settings.smtp_username'),
+                    'password' => Configure::read('Wildflower.settings.smtp_password'),
+                    'host' => Configure::read('Wildflower.settings.smtp_server'),
+        		    'port' => 25, // @TODO add port to settings
+        		    'timeout' => 30
+        		);
+    		}
+    		
+    		$this->Email->send();
+            
+            $message = __('Comment succesfuly posted.', true);
+            if (Configure::read('Wildflower.settings.approve_comments')) {
+                $message = __('Your comment will be posted after it\'s approved by the administrator.', true);
+            }
+            $this->Session->setFlash($message);
 
             $this->redirect($this->data['WildPost']['permalink'] . '#comment-' . $this->WildPost->WildComment->id);
         }

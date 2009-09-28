@@ -8,6 +8,7 @@ class WildPage extends AppModel {
 	   'Versionable' => array('title', 'content', 'description_meta_tag', 'keywords_meta_tag')
     );
     public $belongsTo = array('WildUser');
+    public $hasAndBelongsToMany = array('WildSidebar');
 	public $validate = array(
 	   'title' => array(
 	       'rule' => array('maxLength', 255), 
@@ -103,8 +104,29 @@ class WildPage extends AppModel {
             }
             return true;
         }
-        $pages = array_filter($pages, 'noDrafts');
+        $pages = self::filterOutDrafts($pages);
         return $pages;
+    }
+    
+    function findAllBySlugWithChildren($slug) {
+        $page = $this->find('first', array('conditions' => array('slug' => $slug)));
+        if ($page === false) {
+            return false;
+        }
+        $pages = $this->children($page['WildPage']['id'], false);
+        array_unshift($pages, $page);
+        $pages = self::filterOutDrafts($pages);
+        return $pages;
+    }
+    
+    static function filterOutDrafts($pages) {
+        function noDrafts($page) {
+            if ($page['WildPage']['draft'] == 1) {
+                return false;
+            }
+            return true;
+        }
+        return array_filter($pages, 'noDrafts');
     }
 
     function beforeValidate() {
@@ -121,13 +143,27 @@ class WildPage extends AppModel {
     }
     
     /**
-     * Mark a page as a draft
+     * Mark a page(s) as a draft
      *
-     * @param int $id
+     * @param mixed $ids
+     * @return void
      */
-    function draft($id) {
-        $id = intval($id);
-        return $this->query("UPDATE {$this->useTable} SET draft = 1 WHERE id = $id");
+    function draft($ids) {
+        if (!is_array($ids)) {
+            $ids = array(intval($ids));
+        }
+        $ids = join(', ', $ids);
+        $this->query("UPDATE {$this->useTable} SET draft = 1 WHERE id IN ($ids)");
+    }
+    
+    /**
+     * Alias for $this->draft()
+     *
+     * @param mixed $ids
+     * @return void
+     */
+    function unpublish($ids) {
+        $this->draft($ids);
     }
     
     function getStatusOptions() {
@@ -213,13 +249,17 @@ class WildPage extends AppModel {
     }
 
     /**
-     * Publish a page (unmark draft status)
+     * Mark a page(s) as published
      *
-     * @param int $id
+     * @param mixed $ids
+     * @return void
      */
-    function publish($id) {
-        $id = intval($id);
-        return $this->query("UPDATE {$this->useTable} SET draft = 0 WHERE id = $id");
+    function publish($ids) {
+        if (!is_array($ids)) {
+            $ids = array(intval($ids));
+        }
+        $ids = join(', ', $ids);
+        $this->query("UPDATE {$this->useTable} SET draft = 0 WHERE id IN ($ids)");
     }
     
 	/**

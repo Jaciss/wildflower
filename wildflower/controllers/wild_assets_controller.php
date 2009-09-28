@@ -16,6 +16,8 @@ class WildAssetsController extends AppController {
 	        return $this->render('wf_index');
 	    }
 	    
+	    // @TODO replace upload logic with WildAsset::upload()
+	    
 	    // Check if file with the same name does not already exist
 	    $fileName = trim($this->data[$this->modelClass]['file']['name']);
         $uploadPath = Configure::read('Wildflower.uploadDirectory') . DS . $fileName;
@@ -95,9 +97,9 @@ class WildAssetsController extends AppController {
 	 *
 	 * @param int $limit Number of images on one page
 	 */
-	function wf_insert_image($limit = 8) {
-		$this->layout = '';
-		$this->paginate['limit'] = intval($limit);
+	function wf_insert_image() {
+		$this->autoLayout = false;
+		$this->paginate['limit'] = 10;
 		$this->paginate['conditions'] = "{$this->modelClass}.mime LIKE 'image%'";
 		$images = $this->paginate($this->modelClass);
 		$this->set('images', $images);

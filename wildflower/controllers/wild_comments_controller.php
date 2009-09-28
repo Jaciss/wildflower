@@ -1,12 +1,13 @@
 <?php
 class WildCommentsController extends AppController {
-    public $helpers = array('Time', 'Wildflower.List');
+    public $helpers = array('Time', 'List');
     public $paginate = array(
-        'limit' => 8,
+        'limit' => 20,
         'order' => array(
             'WildComment.created' => 'desc'
         )
     );
+    public $pageTitle = 'Comments';
 
     function wf_delete() {
         $this->WildComment->create($this->data);
@@ -14,16 +15,6 @@ class WildCommentsController extends AppController {
             return;
         }
         $this->WildComment->delete();
-    }
-    
-    /**
-     * @deprecated 
-     *
-     * @param unknown_type $id
-     */
-    function wf_delete_confirmation($id = null) {
-        $this->WildComment->contain();
-        $this->data = $this->WildComment->findById($id);
     }
     
     function wf_edit($id = null) {
@@ -45,7 +36,6 @@ class WildCommentsController extends AppController {
     }
 
     function wf_index() {
-        $this->WildComment->contain('WildPost.title', 'WildPost.id');
         $comments = $this->paginate('WildComment', 'WildComment.spam = 0');
         $this->set('comments', $comments);
     }

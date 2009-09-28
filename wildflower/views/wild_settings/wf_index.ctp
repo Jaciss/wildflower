@@ -2,7 +2,21 @@
 
 <?php
     $session->flash();
-    echo $form->create('WildSetting', array('action' => 'update', 'class' => 'horizontal-form'));
+    echo $form->create('WildSetting', array('action' => 'update', 'class' => 'settings_form'));
+    
+    // echo '<pre>';
+    // foreach ($settings as $setting) {
+    //     $out = "array(\n";
+    //     foreach ($setting['WildSetting'] as $label => $value) {
+    //         if (!is_numeric($value)) {
+    //             $value = "'$value'";
+    //         }
+    //         $out .= "'$label' => $value,\n";
+    //     }
+    //     $out .= "),";
+    //     echo $out;
+    // }
+    // echo '</pre>';
     
     foreach ($settings as $setting) {
         $name = "WildSetting.{$setting['WildSetting']['id']}";
@@ -13,6 +27,7 @@
         );
         
         if (!empty($setting['WildSetting']['description'])) {
+            $setting['WildSetting']['description'] = r('the site root', FULL_BASE_URL, $setting['WildSetting']['description']);
             $options['after'] = "<p class=\"setting-desc\">{$setting['WildSetting']['description']}</p>";
         }
         
@@ -39,13 +54,21 @@
         } else if ($options['type'] == 'textbox') {
             $options['rows'] = 4;
             $options['cols'] = 58;
+        } else if ($options['type'] == 'checkbox' and $options['value'] == 1) {
+            $options['checked'] = true;
         }
         
         echo $form->input($name, $options);
     }
     
     echo
+    '<div id="edit-buttons">',
     $form->submit('Save changes', array('div' => array('class' => 'submit save-section'))),
+    '</div>',
     '<div class="cleaner"></div>',
     $form->end();
 ?>
+
+<?php $partialLayout->blockStart('sidebar'); ?>
+    <?php echo $this->element('../wild_settings/_right_menu'); ?>
+<?php $partialLayout->blockEnd(); ?>

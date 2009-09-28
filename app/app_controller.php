@@ -1,4 +1,16 @@
 <?php
+/**
+ * Wildflower AppController
+ *
+ * If you have a custom AppController in your application, you need to merge 
+ * the functionality with this. It's essential for Wildflower's functionality.
+ *
+ * WF AppController does:
+ * - authentificate users
+ * - set WF Configure settings
+ * - load necessary Helpers and Components
+ * - provides some generic controller actions
+ */
 App::import('Sanitize');
 App::import('Core', 'l10n');
 
@@ -6,78 +18,67 @@ class AppController extends Controller {
 
 	public $components = array('Auth', 'Acl', 'Cookie', 'RequestHandler', 'Seo');
 	public $currentUserId;
-	public $helpers = array('Html', 'Wildflower.Htmla', 'Form', 'Javascript', 'Wild', 'Navigation', 'PartialLayout', 'Textile');
+	public $helpers = array(
+	    'Html', 
+	    'Htmla', 
+	    'Form', 
+	    'Javascript', 
+	    'Wild', 
+	    'Navigation', 
+	    'PartialLayout', 
+	    'Textile', 
+	    'Tree', 
+	    'Text',
+	    'Time'
+	);
 	public $homePageId;
 	public $isAuthorized = false;
     public $isHome = false;
+    
     public $view = 'Theme';
     public $theme = 'wildflower';
 	
 	private $_isDatabaseConnected = true;
 	
-	function __construct() {
-		// Autoload APP helpers
-		$appHelpers = scandir(APP . 'views' . DS . 'helpers');
-		foreach ($appHelpers as $i => $fileName) {
-		    if ($fileName[0] == '.' or strpos($fileName, '.php') < 1) {
-		        unset($appHelpers[$i]);
-		        continue;
-		    }
-		    
-	        $fileName = str_replace('.php', '', $fileName);
-	        $appHelpers[$i] = Inflector::camelize($fileName);
-		}
-		$this->helpers = am($this->helpers, $appHelpers);
-		parent::__construct();
-	}
-	
 	/**
-     * Called before any controller action
+	 * Configure and initialize everything Wildflower needs
+	 *
+     * Should be called before all controller actions in AppController::beforeFilter().
      * 
-     * Do 3 things:
+     * Does 3 things:
      *   1. protect admin area
      *   2. check for user sessions
-     *   3. set site parameters
+     *   3. set site settings, parameters and global view vars
      */
-    function beforeFilter() {
-        parent::beforeFilter();
-
-        // Wilflower callbacks from app/controllers/wildflower_callbacks
-        $this->wildflowerCallback('before');
-        
-        // AuthComponent settings
+	private function _configureWildflower() {
+	    // AuthComponent config
         $this->Auth->userModel = 'WildUser';
         $this->Auth->fields = array('username' => 'login', 'password' => 'password');
         $prefix = Configure::read('Wildflower.prefix');
         $this->Auth->loginAction = "/$prefix/login";
-        $this->Auth->logoutAction = array('plugin' => 'wildflower', 'prefix' => $prefix, 'controller' => 'wild_users', 'action' => 'logout');
-        //$this->Auth->autoRedirect = false;
+        $this->Auth->logoutAction = array('prefix' => $prefix, 'controller' => 'wild_users', 'action' => 'logout');
+        $this->Auth->autoRedirect = false;
         $this->Auth->allow('update_root_cache'); // requestAction() actions need to be allowed
-        //$this->Auth->loginRedirect = "/$prefix";
-	//$this->Auth->allowedActions = array('*');
-        $this->Auth->actionPath = 'controllers/';	//root node aco (cmdline: cake acl create aco root controllers)
-
-		//$this->_assertDatabaseConnection();
-
-		$this->_configureSite();
+        $this->Auth->loginRedirect = "/$prefix";
+	    
+	    // Site settings
+		$settings = ClassRegistry::init('WildSetting')->getKeyValuePairs();
+        Configure::write('AppSettings', $settings); // @TODO add under Wildlfower. configure namespace
+        Configure::write('Wildflower.settings', $settings); // The new namespace for WF settings
         
-		// Admin area requires authentification
+        // Admin area requires authentification
 		if ($this->isAdminAction()) {
-			// Set admin layout and admin specific view vars
 			$this->layout = 'admin_default';
 		} else {
 			$this->layout = 'default';
-			$this->Auth->allow('display');
+			$this->Auth->allow('*');
 		}
-		$this->isAuthorized = $this->Auth->isAuthorized();
 		
 		// Internationalization
 		$this->L10n = new L10n();
         $this->L10n->get('eng');
         Configure::write('Config.language', 'en');
 
-		// Site settings
-		$this->_siteSettings = Configure::read('AppSettings');
 		// Home page ID
 		$this->homePageId = intval(Configure::read('AppSettings.home_page_id'));
 
@@ -90,10 +91,15 @@ class AppController extends Controller {
 		if (!isset($this->params['requested']) && Configure::read('Wildflower.gzipOutput')) {
 		    $this->gzipOutput();
 		}
+	}
+	
+    function beforeFilter() {
+        parent::beforeFilter();
+		$this->_configureWildflower();
     }
 
     /**
-     * @TODO legacy code, refacor
+     * @TODO legacy code, refactor!
      *
      * Delete an item
      *
@@ -132,27 +138,27 @@ class AppController extends Controller {
      * @TODO Could be much faster using custom UPDATE or DELETE queries
      */
     function wf_mass_update() {
+        //fb($this->data);exit();
+        if ($this->data['__action'] == 'delete') {
+            $this->data['__action'] = 'mass_delete';
+        }
+        $availActions = array('mass_delete', 'publish', 'unpublish', 'approve', 'unapprove', 'spam', 'unspam');
+        // Collect selected item IDs
+        $ids = array();
         if (isset($this->data['__action'])) {
-            foreach ($this->data['id'] as $id => $checked) {
+            foreach ($this->data[$this->modelClass]['id'] as $id => $checked) {
                 if (intval($checked) === 1) {
-                    switch ($this->data['__action']) {
-                        case 'delete':
-                            // Delete with comments
-                            $this->{$this->modelClass}->delete($id);
-                            break;
-                        case 'publish':
-                            $this->{$this->modelClass}->publish($id);
-                            break;
-                        case 'draft':
-                            $this->{$this->modelClass}->draft($id);
-                            break;
-                    }
+                    $ids[] = intval($id);
                 }
             }
         }
-        
-    	$link = am($this->params['named'], array('action' => 'wf_index'));
-        return $this->redirect($link);
+        // If the action is recognized execute it
+        if (in_array($this->data['__action'], $availActions, true)) {
+            $result = $this->{$this->modelClass}->{$this->data['__action']}($ids);
+        }
+
+    	$redirect = am($this->params['named'], array('action' => 'wf_index'));
+        $this->redirect($this->referer($redirect));
     }
     
     /**
@@ -165,51 +171,6 @@ class AppController extends Controller {
         $results = $this->{$this->modelClass}->search($query);
         $this->set('results', $results);
         $this->render('/wild_dashboards/wf_search');
-    }
-    
-    /**
-     * Preview a post or a page
-     *
-     * @param string $fileName Cached page/post content file name
-     */
-    function wf_preview($fileName = null) {
-        if (is_null($fileName)) return $this->cakeError('object_not_found');
-        
-    	$this->layout = 'default';
-    	
-        $previewData = $this->__readPreviewCache($fileName);
-        $id = intval($previewData[$this->modelClass]['id']);
-        $item = $this->{$this->modelClass}->findById($id);
-        if (empty($item)) $this->cakeError('object_not_found');
-        
-        if (is_array($previewData) && !empty($previewData)) {
-            unset($previewData[$this->modelClass]['created']);
-            $item[$this->modelClass] = am($item[$this->modelClass], $previewData[$this->modelClass]);
-        }
-        
-        $itemName = 'item';
-        switch ($this->modelClass) {
-            case 'WildPost':
-                $itemName = 'post';
-                break;
-            case 'WildPage':
-                $itemName = 'page';
-                break;
-        }
-        
-        $params = array($itemName => $item);
-        if (isset($item[$this->modelClass]['description_meta_tag'])) {
-            $params['descriptionMetaTag'] = $item[$this->modelClass]['description_meta_tag'];
-        }
-        $this->set($params);
-        
-        $this->pageTitle = $item[$this->modelClass]['title'];
-        
-        if ($this->modelClass = 'WildPost') {
-            return $this->render('view');
-        } else if ($this->modelClass = 'WildPage') {
-            return $this->_chooseTemplate($item[$this->modelClass]['slug']);
-        }
     }
 	
 	/**
@@ -231,12 +192,9 @@ class AppController extends Controller {
 	    $this->cakeError('xss');
 	}
     
-    function afterFilter() {
-        parent::afterFilter();
-        $this->wildflowerCallback();
-    }
-    
     /**
+     * @TODO Under construction
+     *
      * Launch callbacks if they exist for current controller/method
      *
      * Callback for controllers are stored in <code>app/controllers/wildflower-callbacks/</code>.
@@ -295,12 +253,13 @@ class AppController extends Controller {
         $params = array(
             'siteName' => Configure::read('AppSettings.site_name'),
             'siteDescription' => Configure::read('AppSettings.description'),
-            'isLogged' => $this->isAuthorized,
-            'isAuthorized' => $this->isAuthorized,
+            'isLogged' => $this->Auth->isAuthorized(),
+            'isAuthorized' => $this->Auth->isAuthorized(),
             'isPage' => false,
             'isPosts' => false,
             'isHome' => $this->isHome,
             'homePageId' => $this->homePageId,
+            // Here without base
             'here' => substr($this->here, strlen($this->base) - strlen($this->here)),
         );
         $this->params['Wildflower']['view'] = $params;
@@ -322,8 +281,13 @@ class AppController extends Controller {
         return $this->Auth->user('id');
     }
 	
+	/**
+	 * Create a preview cache file
+	 *
+	 * @return void
+	 */
 	function wf_create_preview() {
-        $cacheDir = Configure::read('Wildflower.previewCache');
+        $cacheDir = Configure::read('Wildflower.previewCache') . DS;
         
         // Create a unique file name
         $fileName = time();
@@ -333,7 +297,7 @@ class AppController extends Controller {
             $path = $cacheDir . $fileName . '.json';
         }
         
-        // Write data to preview file
+        // Write POST data to preview file
         $data = json_encode($this->data[$this->modelClass]);
         file_put_contents($path, $data);
         
@@ -357,19 +321,6 @@ class AppController extends Controller {
 		if (isset($this->params['prefix']) && $this->params['prefix'] === 'admin') return true;
         return (isset($this->params['prefix']) && $this->params['prefix'] === $wfPrefix);
     }
-
-	/**
-	 * Write all site settings to Configure class as key => value pairs.
-	 * Access them anywhere in the application with Configure::read().
-	 *
-	 */
-	private function _configureSite() {
-		$settings = ClassRegistry::init('WildSetting')->getKeyValuePairs();
-        Configure::write('AppSettings', $settings); // @depracated Use namespace below
-        Configure::write('Wildflower.settings', $settings); // The new namespace for WF settings
-        Configure::write('Wildflower.fullSiteUrl', FULL_BASE_URL . $this->base);
-        Configure::write('Wildflower.fullCurrentUrl', FULL_BASE_URL . $this->here);
-	}
 
     /**
      * Delete old files from preview cache
@@ -406,7 +357,7 @@ class AppController extends Controller {
       * @return array
       */
      protected function __readPreviewCache($fileName) {
-         $previewCachePath = Configure::read('Wildflower.previewCache') . $fileName . '.json';
+         $previewCachePath = Configure::read('Wildflower.previewCache') . DS . $fileName . '.json';
          if (!file_exists($previewCachePath)) {
              return trigger_error("Cache file $previewCachePath does not exist!");
          }
@@ -525,4 +476,3 @@ class AppController extends Controller {
     }
 	
 }
-

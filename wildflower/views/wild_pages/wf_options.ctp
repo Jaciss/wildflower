@@ -1,7 +1,4 @@
 <?php
-    $partialLayout->switchToEditorMode();
-    $partialLayout->setLayoutVar('publishedLink', $html->link(FULL_BASE_URL . $this->base . $this->data['WildPage']['url'], $this->data['WildPage']['url']));
- 
     echo 
     $form->create('WildPage', array('url' => $html->url(array('action' => 'update', 'base' => false)), 'class' => 'horizontal-form')),
     '<div>',
@@ -34,8 +31,5 @@
 
 
 <?php $partialLayout->blockStart('sidebar'); ?>
-    <li class="sidebar-box">
-        <h4>Editing options for page...</h4>
-        <?php echo $html->link($this->data['WildPage']['title'], array('action' => 'edit', $this->data['WildPage']['id']), array('class' => 'edited-item-link')); ?>
-    </li>
+    <?php echo $this->element('../wild_pages/_page_edit_right_menu'); ?>
 <?php $partialLayout->blockEnd(); ?>
