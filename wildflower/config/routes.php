@@ -4,7 +4,7 @@
  *
  * Wildflower reservers these URL's:
  */
-<<<<<<< HEAD:wildflower/config/routes.php
+
 $wfControllers = array('pages', 'posts', 'dashboards', 'users', 'categories', 'comments', 'assets', 'messages', 'uploads', 'settings', 'utilities', 'widgets', 'sidebars', 'groups');
 foreach ($wfControllers as $shortcut) {
 	Router::connect(
@@ -48,8 +48,6 @@ Router::connect('/' . Configure::read('Wildflower.blogIndex') . '/feed', array('
 Router::connect('/' . Configure::read('Wildflower.postsParent') . '/:slug', array('controller' => 'wild_posts', 'action' => 'view'));
 Router::connect('/c/:slug', array('controller' => 'wild_posts', 'action' => 'category'));
 
-=======
- 
 // Home page
 Router::connect('/', array('controller' => 'pages', 'action' => 'view'));
 Router::connect('/app/webroot/', array('controller' => 'pages', 'action' => 'view'));
@@ -64,7 +62,6 @@ Router::connect('/c/:slug', array('controller' => 'posts', 'action' => 'category
 // Wildflower admin routes
 $prefix = Configure::read('Routing.admin');
 Router::connect("/$prefix", array('controller' => 'dashboards', 'action' => 'index', 'admin' => true));
->>>>>>> 37715e352761da6487c0a206f26c7b3fbfa865a8:wildflower/config/routes.php
 
 // Image thumbnails
 // @TODO shorten to '/i/*'
@@ -72,8 +69,8 @@ Router::connect('/wildflower/thumbnail/*', array('controller' => 'assets', 'acti
 Router::connect('/wildflower/thumbnail_by_id/*', array('controller' => 'assets', 'action' => 'thumbnail_by_id'));
 
 // ACL
-Router::connect('/$prefix/acl', array('controller' => 'acl', 'action' => 'acl', 'index', 'prefix' => 'admin'));
-Router::connect('/$prefix/acl/*', array('controller' => 'acl', 'action' => 'acl', 'prefix' => 'admin'));
+Router::connect("/$prefix/acl", array('controller' => 'acl', 'action' => 'acl', 'index', 'admin'=>true));
+Router::connect("/$prefix/acl/*", array('controller' => 'acl', 'action' => 'acl', 'admin'=>true));
 
 // Connect root pages slugs
 App::import('Vendor', 'WfRootPagesCache', array('file' => 'WfRootPagesCache.php'));

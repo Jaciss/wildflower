@@ -71,6 +71,7 @@
         <li><?php echo $htmla->link(__('Comments', true), array('controller' => 'comments', 'action' => 'index')); ?></li>
         <li><?php echo $htmla->link(__('Messages', true), array('controller' => 'messages', 'action' => 'index')); ?></li>
         <li><?php echo $htmla->link(__('Files', true), array('controller' => 'assets', 'action' => 'index')); ?></li>
+        <li><?php echo $htmla->link(__('Permissions', true), array('controller' => 'acl', 'action' => 'index')); ?></li>
 		<li><?php echo $htmla->link(__('Groups', true), array('controller' => 'groups', 'action' => 'index')); ?></li>
         <li class="nav_item_on_right"><?php echo $htmla->link(__('Users', true), array('controller' => 'users', 'action' => 'index')); ?></li>
         <li class="nav_item_on_right"><?php echo $htmla->link(__('Site Settings', true), array('controller' => 'settings', 'action' => 'index')); ?></li>
