@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: ajax.php 8120 2009-03-19 20:25:10Z gwoo $ */
+/* SVN FILE: $Id$ */
 /**
  * Helper for AJAX operations.
  *
@@ -19,9 +19,9 @@
  * @package       cake
  * @subpackage    cake.cake.libs.view.helpers
  * @since         CakePHP(tm) v 0.10.0.1076
- * @version       $Revision: 8120 $
- * @modifiedby    $LastChangedBy: gwoo $
- * @lastmodified  $Date: 2009-03-19 13:25:10 -0700 (Thu, 19 Mar 2009) $
+ * @version       $Revision$
+ * @modifiedby    $LastChangedBy$
+ * @lastmodified  $Date$
  * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -81,7 +81,8 @@ class AjaxHelper extends AppHelper {
  */
 	var $dragOptions = array(
 		'handle', 'revert', 'snap', 'zindex', 'constraint', 'change', 'ghosting',
-		'starteffect', 'reverteffect', 'endeffect'
+		'starteffect', 'reverteffect', 'endeffect', 'scroll', 'scrollSensitivity',
+		'onStart', 'onDrag', 'onEnd'
 	);
 /**
  * Options for droppable.
@@ -957,7 +958,7 @@ class AjaxHelper extends AppHelper {
 			$keys = array_keys($this->__ajaxBuffer);
 
 			if (count($divs) == 1 && in_array($divs[0], $keys)) {
-				e($this->__ajaxBuffer[$divs[0]]);
+				echo $this->__ajaxBuffer[$divs[0]];
 			} else {
 				foreach ($this->__ajaxBuffer as $key => $val) {
 					if (in_array($key, $divs)) {
@@ -968,14 +969,13 @@ class AjaxHelper extends AppHelper {
 				$out .= 'for (n in __ajaxUpdater__) { if (typeof __ajaxUpdater__[n] == "string"';
 				$out .= ' && $(n)) Element.update($(n), unescape(decodeURIComponent(';
 				$out .= '__ajaxUpdater__[n]))); }';
-				e($this->Javascript->codeBlock($out, false));
+				echo $this->Javascript->codeBlock($out, false);
 			}
 			$scripts = $this->Javascript->getCache();
 
 			if (!empty($scripts)) {
-				e($this->Javascript->codeBlock($scripts, false));
+				echo $this->Javascript->codeBlock($scripts, false);
 			}
-
 			$this->_stop();
 		}
 	}

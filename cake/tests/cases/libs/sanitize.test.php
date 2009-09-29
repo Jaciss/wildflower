@@ -1,7 +1,7 @@
 <?php
 /* SVN FILE: $Id$ */
 /**
- * Short description for file.
+ * SanitizeTest file
  *
  * Long description for file
  *
@@ -16,7 +16,7 @@
  * @filesource
  * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
- * @package       cake.tests
+ * @package       cake
  * @subpackage    cake.tests.cases.libs
  * @since         CakePHP(tm) v 1.2.0.5428
  * @version       $Revision$
@@ -70,9 +70,9 @@ class SanitizeArticle extends CakeTestModel {
 	var $useTable = 'articles';
 }
 /**
- * Short description for class.
+ * SanitizeTest class
  *
- * @package       cake.tests
+ * @package       cake
  * @subpackage    cake.tests.cases.libs
  */
 class SanitizeTest extends CakeTestCase {
@@ -298,8 +298,8 @@ class SanitizeTest extends CakeTestCase {
 		$result = Sanitize::stripScripts($string);
 		$this->assertEqual($result, $expected);
 
-		$string = '<link href="/css/styles.css" media="screen" rel="stylesheet" />'."\n".'<link rel="icon" href="/favicon.ico" type="image/x-icon" />'."\n".'<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />'."\n".'<link rel="alternate" href="/feed.xml" title="RSS Feed" type="application/rss+xml" />';
-		$expected = "\n".'<link rel="icon" href="/favicon.ico" type="image/x-icon" />'."\n".'<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />'."\n".'<link rel="alternate" href="/feed.xml" title="RSS Feed" type="application/rss+xml" />';
+		$string = '<link href="/css/styles.css" media="screen" rel="stylesheet" />' . "\n" . '<link rel="icon" href="/favicon.ico" type="image/x-icon" />' . "\n" . '<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />' . "\n" . '<link rel="alternate" href="/feed.xml" title="RSS Feed" type="application/rss+xml" />';
+		$expected = "\n" . '<link rel="icon" href="/favicon.ico" type="image/x-icon" />' . "\n" . '<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />'."\n".'<link rel="alternate" href="/feed.xml" title="RSS Feed" type="application/rss+xml" />';
 		$result = Sanitize::stripScripts($string);
 		$this->assertEqual($result, $expected);
 
@@ -445,5 +445,4 @@ class SanitizeTest extends CakeTestCase {
 		$this->assertEqual($result, $expected);
 	}
 }
-
 ?>

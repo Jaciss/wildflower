@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: controller.php 8120 2009-03-19 20:25:10Z gwoo $ */
+/* SVN FILE: $Id$ */
 /**
  * Base controller class.
  *
@@ -17,9 +17,9 @@
  * @package       cake
  * @subpackage    cake.cake.libs.controller
  * @since         CakePHP(tm) v 0.2.9
- * @version       $Revision: 8120 $
- * @modifiedby    $LastChangedBy: gwoo $
- * @lastmodified  $Date: 2009-03-19 13:25:10 -0700 (Thu, 19 Mar 2009) $
+ * @version       $Revision$
+ * @modifiedby    $LastChangedBy$
+ * @lastmodified  $Date$
  * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -393,7 +393,9 @@ class Controller extends Object {
 					if ($var === 'components') {
 						$normal = Set::normalize($this->{$var});
 						$app = Set::normalize($appVars[$var]);
-						$this->{$var} = Set::merge($normal, $app);
+						if ($app !== $normal) {
+							$this->{$var} = Set::merge($app, $normal);
+						}
 					} else {
 						$this->{$var} = Set::merge($this->{$var}, array_diff($appVars[$var], $this->{$var}));
 					}
@@ -415,7 +417,9 @@ class Controller extends Object {
 					if ($var === 'components') {
 						$normal = Set::normalize($this->{$var});
 						$app = Set::normalize($appVars[$var]);
-						$this->{$var} = Set::merge($normal, array_diff_assoc($app, $normal));
+						if ($app !== $normal) {
+							$this->{$var} = Set::merge($app, $normal);
+						}
 					} else {
 						$this->{$var} = Set::merge($this->{$var}, array_diff($appVars[$var], $this->{$var}));
 					}
@@ -943,17 +947,17 @@ class Controller extends Object {
 			}
 
 			if ($assoc && isset($this->{$object}->{$assoc})) {
-				$object = $this->{$object}->{$assoc};
+				$object =& $this->{$object}->{$assoc};
 			} elseif ($assoc && isset($this->{$this->modelClass}) && isset($this->{$this->modelClass}->{$assoc})) {
-				$object = $this->{$this->modelClass}->{$assoc};
+				$object =& $this->{$this->modelClass}->{$assoc};
 			} elseif (isset($this->{$object})) {
-				$object = $this->{$object};
+				$object =& $this->{$object};
 			} elseif (isset($this->{$this->modelClass}) && isset($this->{$this->modelClass}->{$object})) {
-				$object = $this->{$this->modelClass}->{$object};
+				$object =& $this->{$this->modelClass}->{$object};
 			}
 		} elseif (empty($object) || $object === null) {
 			if (isset($this->{$this->modelClass})) {
-				$object = $this->{$this->modelClass};
+				$object =& $this->{$this->modelClass};
 			} else {
 				$className = null;
 				$name = $this->uses[0];
@@ -961,9 +965,9 @@ class Controller extends Object {
 					list($name, $className) = explode('.', $this->uses[0]);
 				}
 				if ($className) {
-					$object = $this->{$className};
+					$object =& $this->{$className};
 				} else {
-					$object = $this->{$name};
+					$object =& $this->{$name};
 				}
 			}
 		}
@@ -1030,6 +1034,14 @@ class Controller extends Object {
 		if (!isset($defaults['conditions'])) {
 			$defaults['conditions'] = array();
 		}
+
+		$type = 'all';
+
+		if (isset($defaults[0])) {
+			$type = $defaults[0];
+			unset($defaults[0]);
+		}
+
 		extract($options = array_merge(array('page' => 1, 'limit' => 20), $defaults, $options));
 
 		if (is_array($scope) && !empty($scope)) {
@@ -1040,12 +1052,7 @@ class Controller extends Object {
 		if ($recursive === null) {
 			$recursive = $object->recursive;
 		}
-		$type = 'all';
 
-		if (isset($defaults[0])) {
-			$type = $defaults[0];
-			unset($defaults[0]);
-		}
 		$extra = array_diff_key($defaults, compact(
 			'conditions', 'fields', 'order', 'limit', 'page', 'recursive'
 		));

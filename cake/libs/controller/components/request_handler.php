@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: request_handler.php 8120 2009-03-19 20:25:10Z gwoo $ */
+/* SVN FILE: $Id$ */
 /**
  * Request object for handling alternative HTTP requests
  *
@@ -19,9 +19,9 @@
  * @package       cake
  * @subpackage    cake.cake.libs.controller.components
  * @since         CakePHP(tm) v 0.10.4.1076
- * @version       $Revision: 8120 $
- * @modifiedby    $LastChangedBy: gwoo $
- * @lastmodified  $Date: 2009-03-19 13:25:10 -0700 (Thu, 19 Mar 2009) $
+ * @version       $Revision$
+ * @modifiedby    $LastChangedBy$
+ * @lastmodified  $Date$
  * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
@@ -524,6 +524,7 @@ class RequestHandlerComponent extends Object {
 			return $this->ext;
 		}
 
+		$types = $type;
 		if (is_string($type)) {
 			$types = array($type);
 		}
@@ -550,7 +551,11 @@ class RequestHandlerComponent extends Object {
             return $accepts[0];
 		}
 
-		$accepts = array_intersect($this->__acceptTypes, $accepts);
+		$acceptedTypes = array();
+		foreach ($this->__acceptTypes as $type) {
+			$acceptedTypes[] = $this->mapType($type);
+		}
+		$accepts = array_intersect($acceptedTypes, $accepts);
 		return $accepts[0];
 	}
 /**
@@ -580,7 +585,7 @@ class RequestHandlerComponent extends Object {
 		if (empty($this->__renderType)) {
 			$controller->viewPath .= '/' . $type;
 		} else {
-			$remove = preg_replace("/(?:\/{$type})$/", '/' . $type, $controller->viewPath);
+			$remove = preg_replace("/(?:\/{$this->__renderType})$/", '/' . $type, $controller->viewPath);
 			$controller->viewPath = $remove;
 		}
 		$this->__renderType = $type;

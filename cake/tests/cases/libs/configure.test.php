@@ -1,9 +1,9 @@
 <?php
 /* SVN FILE: $Id$ */
 /**
- * Short description for file.
+ * ConfigureTest file
  *
- * Long description for file
+ * Holds several tests
  *
  * PHP versions 4 and 5
  *
@@ -16,7 +16,7 @@
  * @filesource
  * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
- * @package       cake.tests
+ * @package       cake
  * @subpackage    cake.tests.cases.libs
  * @since         CakePHP(tm) v 1.2.0.5432
  * @version       $Revision$
@@ -24,12 +24,11 @@
  * @lastmodified  $Date$
  * @license       http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
-
 App::import('Core', 'Configure');
 /**
- * Short description for class.
+ * ConfigureTest
  *
- * @package       cake.tests
+ * @package       cake
  * @subpackage    cake.tests.cases.libs
  */
 class ConfigureTest extends CakeTestCase {
@@ -40,8 +39,10 @@ class ConfigureTest extends CakeTestCase {
  * @return void
  */
 	function setUp() {
-		parent::setUp();
+		$this->_cacheDisable = Configure::read('Cache.disable');
 		Configure::write('Cache.disable', true);
+
+		$this->_debug = Configure::read('debug');
 	}
 /**
  * tearDown method
@@ -68,7 +69,8 @@ class ConfigureTest extends CakeTestCase {
 		if (file_exists(TMP . 'cache' . DS . 'persistent' . DS . 'test.php')) {
 			unlink(TMP . 'cache' . DS . 'persistent' . DS . 'test.php');
 		}
-		parent::tearDown();
+		Configure::write('debug', $this->_debug);
+		Configure::write('Cache.disable', $this->_cacheDisable);
 	}
 /**
  * testListObjects method
@@ -148,7 +150,6 @@ class ConfigureTest extends CakeTestCase {
 		$result = Configure::read('SomeName.someKey');
 		$this->assertEqual($result, null);
 	}
-
 /**
  * testSetErrorReporting Level
  *
@@ -161,7 +162,7 @@ class ConfigureTest extends CakeTestCase {
 
 		Configure::write('debug', 2);
 		$result = ini_get('error_reporting');
-		$this->assertEqual($result, E_ALL);
+		$this->assertEqual($result, E_ALL & ~E_DEPRECATED);
 
 		$result = ini_get('display_errors');
 		$this->assertEqual($result, 1);
@@ -501,9 +502,9 @@ class AppImportTest extends UnitTestCase {
 		$this->assertTrue($result);
 		$this->assertTrue(class_exists('SamplePluginClassTestName'));
 
-		$result = App::import('Vendor', 'Sample');
+		$result = App::import('Vendor', 'ConfigureTestVendorSample');
 		$this->assertTrue($result);
-		$this->assertTrue(class_exists('SampleClassTestName'));
+		$this->assertTrue(class_exists('ConfigureTestVendorSample'));
 
 		ob_start();
 		$result = App::import('Vendor', 'SomeName', array('file' => 'some.name.php'));
@@ -536,5 +537,4 @@ class AppImportTest extends UnitTestCase {
 		$this->assertEqual($text, 'This is the welcome.php file in test_plugin/vendors directory');
 	}
 }
-
 ?>

@@ -42,10 +42,14 @@ img {
     border: none;
 }
 
+hr {
+    display: none;
+}
+
 #wrap,
 #footer,
 #header-wrap {
-    padding: 0 30px;
+    padding: 0 20px;
 }
 
 #wrap {
@@ -55,7 +59,7 @@ img {
 
 #footer {
     margin: 0;
-    padding: 0 40px 14px;
+    padding: 0 30px 14px;
     font-size: 10px;
 }
 
@@ -63,62 +67,43 @@ img {
         color: #686868;
         text-decoration: none;
     }
+    
 
-#header,
-#editor_mode_header {
-    background: #1b3b53;
+/* Header */
+
+#header {
+    background: #092439;
     overflow: hidden;
     color: #feffc2;
+    padding: 0 15px;
 }
 
-#editor_mode_header {
-    padding: 0 40px;
-    margin: 0;
-    list-style: none;
-    overflow: hidden;
-}
-
-    #editor_mode_header li {
-        float: left;
-        padding: 6px;
-        margin: 0;
+    #header a {
+        color: #fff;
     }
     
-    #editor_mode_header small {
-        font-size: 11px;
-    }
-
-    #editor_mode_header a {
+    #header a:hover {
+        background: #3b3b3b;
         color: #fff;
     }
 
-    #header a {
-        color: #feffc2;
-    }
-    
-    #header a:hover,
-    #editor_mode_header a:hover {
-        background-color: #d0e4f8;
-        color: #000;
-    }
-
-#header-wrap {
-    position: relative;
-}
-
-#site-title {
-    font-size: 22px;
+#site_title {
+    font-size: 20px;
     font-weight: normal;
     margin: 0;
-    letter-spacing: 0.5px;
+    text-decoration: none;
+    padding: 17px 10px;
+    display: block;
+    float: left;
+    color: #eade51;
 }
-
-    #site-title a {
-        text-decoration: none;
-        padding: 20px 10px;
-        display: block;
-        float: left;
-    }
+    
+#site_index {
+    float: left;
+    display: block;
+    padding: 3px 5px;
+    margin: 18px 0 0 -3px;
+}
     
 #nav {
     list-style: none;
@@ -133,46 +118,45 @@ img {
         float: left;
     }
     
+    #nav .nav_item_on_right {
+        float: right;
+    }
+    
     #nav a {
         display: block;
         height: 13px;
         margin: 0 3px 0 0;
-        padding: 4px 9px 9px 9px;
-        background-color: #446076;
+        padding: 4px 9px 8px 9px;
+        background: #1f3b52;
         color: #fff;
         text-decoration: none;
     }
     
-        #nav .current a,
-        #nav .current a:hover {
-            color: #1d1d1d;
-            background-color: #e2e2e2;
-            font-weight: bold;
-        }
-        
-        #nav .current a {
-            color: #008720;
-        }
+    #nav .current,
+    #nav .current:hover {
+        color: #008720;
+        background-color: #e2e2e2;
+        font-weight: bold;
+    }
+    
+    #nav .current {
+        color: #008720;
+    }
         
     #nav a:hover {
         color: #fff;
-        background-color: #597d99;
+        background-color: #282828;
     }
-    
-#nav .nav-site-settings,
-#nav .nav-users {
-    float: right;
-}
 
-#login-info {
+#login_info {
     position: absolute;
-    top: 0px;
-    right: 32px;
+    top: 5px;
+    right: 20px;
 }
 
     #login-info a {
         display: inline-block;
-        padding: 6px;
+        padding: 3px 5px;
     }
 
 #content {
@@ -208,7 +192,8 @@ img {
 }
 
 #content_pad {
-    padding: 20px 25px 20px;
+    padding: 20px 20px 20px;
+    min-height: 200px;
 }
 
 .cleaner {
@@ -275,12 +260,12 @@ h2 {
 }
 
 .section {
-    margin: -20px -25px 14px;
-    padding: 15px 25px;
+    margin: -20px -20px 14px;
+    padding: 13px 20px;
     font-size: 14px;
     font-weight: bold;
     line-height: 17px;
-    background: #eef5fb url(img/page_top.png) left bottom repeat-x;
+    background: #d2eafc;
 }
 
     .section h2 {
@@ -347,8 +332,8 @@ select {
     margin: 0;
 }
 
-#WildPostCreatedYear,
-#WildPageCreatedYear {
+#PostCreatedYear,
+#PageCreatedYear {
     margin-right: 10px;
 }
 
@@ -463,9 +448,9 @@ select {
 
 #flashMessage {
     color: #fff;
-    background: #3b8f30;
+    background: #40a65f;
     border: 1px solid #62e350;
-    padding: 5px;
+    padding: 5px 10px;
     margin: 0 0 14px 0;
 }
 
@@ -594,23 +579,19 @@ select {
     line-height: 17px;
 }    
 
-    /* Sidebar search */
+/* Sidebar search */
 
-        #sidebar .search .input {
-            margin-bottom: 0;
-        }
-        
-        #sidebar .search label {
-            font-weight: bold;
-        }
-        
-        #sidebar .search input {
-            width: 99%;
-            margin: 2px 0 0 0;
-            display: block;
-            font-size: 14px;
-            padding: 2px;
-        }
+#sidebar .search .input {
+    margin-bottom: 0;
+}
+
+#sidebar .search input {
+    width: 99%;
+    margin: 2px 0 0 0;
+    display: block;
+    font-size: 14px;
+    padding: 2px;
+}
 
 #sidebar-search-results {
     list-style: none;
@@ -652,7 +633,7 @@ select {
         text-align: right;
         float: right;
         position: relative;
-        top: -16px;
+        top: -1px;
     }
     
         .select-actions span a,
@@ -838,6 +819,10 @@ select {
     margin-right: 6px;
 }
 
+#save-preview {
+    display: none; /* Disabled until preview is functional */
+}
+
     #save-draft input,
     #save-publish input,
     #save-preview input,
@@ -857,10 +842,16 @@ select {
     a.cancel,
     a.cancel:hover,
     .rename_title,
-    #authMessage {
+    #authMessage,
+    .delete {
         color: #d80019;
         background-color: transparent;
     }
+    
+.delete:hover {
+    background-color: #d80019;
+    color: #fff;
+}
     
 #post-categories,
 #post-options,
@@ -1048,6 +1039,11 @@ select {
     padding: 10px;
     background-color: #ebebeb;
 }
+
+    #resize_image h5 {
+        margin: 0 0 1em;
+        font-size: 12px;
+    }
 
 .sidebar-box .paginator {
     font-size: 11px;
@@ -1241,8 +1237,8 @@ select {
     
 #edit-buttons {
     overflow: hidden;
-    margin: 10px -25px -22px;
-    background: #eee;
+    margin: 10px -20px -22px;
+    background: #ceffb0;
     padding: 10px 25px;
     position: relative;
 }
@@ -1353,16 +1349,6 @@ select {
     .action_delete:hover {
         background-color: transparent;
     }
-/*for cake-generated table prettiness*/
-table{border:1px solid #ddd;width:100%}
-td{padding-left:.5em;padding-right:.5em}
-th{
-    background:#445566;
-    color:#fff;
-    border-bottom:1px solid #ddd;
-}
-th a{color:#fff}
-.altrow{background:#eef5fb}
 /*for cake-generated table prettiness*/
 table{border:1px solid #ddd;width:100%}
 td{padding-left:.5em;padding-right:.5em}
@@ -1565,4 +1551,65 @@ th a{color:#fff}
 
 #setting-wordpress_api_key input {
     width: 100px;
+}
+
+
+/* Menu editing */
+
+.menu_items {
+    margin: 1em 0;
+    padding: 0;
+    list-style: none;
+}
+
+    .menu_items li {
+        margin: 0 0 4px 0;
+        padding: 4px;
+        background: #eee;
+        overflow: hidden;
+    }
+    
+.menu_item_label,
+.menu_item_url {
+    float: left;
+    padding: 0 10px 0 5px;
+}
+
+    .menu_items label {
+        padding: 0 5px 0 0;
+    }
+    
+    .menu_items .delete {
+        font-size: 11px;
+        position: relative;
+        top: 2px;
+        display: block;
+        float: left;
+    }
+    
+    .add_menu_item_p {
+        text-align: right;
+    }
+    
+.move {
+    background: url(img/move_cursor.png) 0 0 no-repeat;
+    width: 15px;
+    height: 15px;
+    display: block;
+    float: right;
+    margin: 5px 5px 0 0;
+    cursor: move;
+}
+
+.move:hover {
+    background-color: transparent;
+}
+
+    .move span {
+        display: none;
+    }
+    
+.drop_here {
+    height: 30px;
+    background: #fff74c !important;
 }

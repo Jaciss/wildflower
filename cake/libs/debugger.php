@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: debugger.php 7945 2008-12-19 02:16:01Z gwoo $ */
+/* SVN FILE: $Id$ */
 /**
  * Framework debugging and PHP error-handling class
  *
@@ -19,9 +19,9 @@
  * @package       cake
  * @subpackage    cake.cake.libs
  * @since         CakePHP(tm) v 1.2.4560
- * @version       $Revision: 7945 $
- * @modifiedby    $LastChangedBy: gwoo $
- * @lastmodified  $Date: 2008-12-18 18:16:01 -0800 (Thu, 18 Dec 2008) $
+ * @version       $Revision$
+ * @modifiedby    $LastChangedBy$
+ * @lastmodified  $Date$
  * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -144,7 +144,8 @@ class Debugger extends Object {
 
 		if (is_object($trace[0]['object']) && isset($trace[0]['object']->_reporter->_test_stack)) {
 			$stack = $trace[0]['object']->_reporter->_test_stack;
-			$source = "[". $stack[0].", ". $stack[2] ."::" . $stack[3] ."()]\n";
+			$source = sprintf('[%1$s, %3$s::%2$s()]' . "\n",
+								array_shift($stack), array_pop($stack), array_pop($stack));
 		}
 
 		CakeLog::write($level, $source . $_this->exportVar($var));
@@ -162,7 +163,7 @@ class Debugger extends Object {
  * @access public
  */
 	function handleError($code, $description, $file = null, $line = null, $context = null) {
-		if (error_reporting() == 0 || $code === 2048) {
+		if (error_reporting() == 0 || $code === 2048 || $code === 8192) {
 			return;
 		}
 

@@ -2,14 +2,11 @@
 /**
  * Wildflower AppController
  *
- * If you have a custom AppController in your application, you need to merge 
- * the functionality with this. It's essential for Wildflower's functionality.
- *
  * WF AppController does:
  * - authentificate users
  * - set WF Configure settings
  * - load necessary Helpers and Components
- * - provides some generic controller actions
+ * - provides some global controller actions like delete (@TODO: this could be dangerous - revisit)
  */
 App::import('Sanitize');
 App::import('Core', 'l10n');
@@ -34,10 +31,6 @@ class AppController extends Controller {
 	public $homePageId;
 	public $isAuthorized = false;
     public $isHome = false;
-    
-    public $view = 'Theme';
-    public $theme = 'wildflower';
-	
 	private $_isDatabaseConnected = true;
 	
 	/**
@@ -52,17 +45,17 @@ class AppController extends Controller {
      */
 	private function _configureWildflower() {
 	    // AuthComponent config
-        $this->Auth->userModel = 'WildUser';
+        $this->Auth->userModel = 'User';
         $this->Auth->fields = array('username' => 'login', 'password' => 'password');
-        $prefix = Configure::read('Wildflower.prefix');
-        $this->Auth->loginAction = "/$prefix/login";
-        $this->Auth->logoutAction = array('prefix' => $prefix, 'controller' => 'wild_users', 'action' => 'logout');
+        $prefix = Configure::read('Routing.admin');
+        $this->Auth->loginAction = array('controller' => 'users', 'action' => 'login', 'admin' => false);
+        $this->Auth->logoutAction = array('controller' => 'users', 'action' => 'logout', 'admin' => false);
         $this->Auth->autoRedirect = false;
         $this->Auth->allow('update_root_cache'); // requestAction() actions need to be allowed
         $this->Auth->loginRedirect = "/$prefix";
 	    
 	    // Site settings
-		$settings = ClassRegistry::init('WildSetting')->getKeyValuePairs();
+		$settings = ClassRegistry::init('Setting')->getKeyValuePairs();
         Configure::write('AppSettings', $settings); // @TODO add under Wildlfower. configure namespace
         Configure::write('Wildflower.settings', $settings); // The new namespace for WF settings
         
@@ -137,7 +130,7 @@ class AppController extends Controller {
      *
      * @TODO Could be much faster using custom UPDATE or DELETE queries
      */
-    function wf_mass_update() {
+    function admin_mass_update() {
         //fb($this->data);exit();
         if ($this->data['__action'] == 'delete') {
             $this->data['__action'] = 'mass_delete';
@@ -166,11 +159,11 @@ class AppController extends Controller {
      *
      * @param string $query Search term, encoded by Javascript's encodeURI()
      */
-    function wf_search($query = '') {
+    function admin_search($query = '') {
         $query = urldecode($query);
         $results = $this->{$this->modelClass}->search($query);
         $this->set('results', $results);
-        $this->render('/wild_dashboards/wf_search');
+        $this->render('/dashboards/wf_search');
     }
 	
 	/**
@@ -201,8 +194,8 @@ class AppController extends Controller {
      * The name convencions is unserscored class that you want to plug into with "_callback"
      * suffix. Examples:
      *    
-     *    - wild_pages_controller_callback.php
-     *    - wild_comments_controller_callback.php
+     *    - pages_controller_callback.php
+     *    - comments_controller_callback.php
      *    - wildflower_app_controller_callback.php
      *
      * @param string $when Launch <code>before</code> or <code>after</code> current action
@@ -286,7 +279,7 @@ class AppController extends Controller {
 	 *
 	 * @return void
 	 */
-	function wf_create_preview() {
+	function admin_create_preview() {
         $cacheDir = Configure::read('Wildflower.previewCache') . DS;
         
         // Create a unique file name

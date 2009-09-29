@@ -1,66 +1,56 @@
 <?php
+/* SVN FILE: $Id: bootstrap.php 7945 2008-12-19 02:16:01Z gwoo $ */
 /**
- * Wildflower bootstrap file
- * 
- * This file should be included in app/bootsrap.php. It connect WF
- * with your application.
+ * Short description for file.
  *
- * @package wildflower
- */
-
-// Wildflower plugin paths
-define('WILDFLOWER_PLUGIN', APP . 'plugins' . DS . 'wildflower');
-define('SETTINGS_CACHE_FILE', TMP . 'settings' . DS . 'cache'); // @depracated
-
-// Wildflower MVC paths
-define('WILDFLOWER_DIR', APP . '..' . DS . 'wildflower');
-
-$modelPaths = array(WILDFLOWER_DIR . DS . 'models' . DS);
-$viewPaths = array(WILDFLOWER_DIR . DS . 'views' . DS);
-$controllerPaths = array(WILDFLOWER_DIR . DS . 'controllers' . DS);
-$behaviorPaths = array(WILDFLOWER_DIR . DS . 'models' . DS . 'behaviors' . DS);
-$helperPaths = array(WILDFLOWER_DIR . DS . 'views' . DS . 'helpers' . DS);
-$componentPaths = array(WILDFLOWER_DIR . DS . 'controllers' . DS . 'components' . DS);
-
-
-// Include Wildflower config
-require_once(dirname(__FILE__) . DS . 'core.php');
-
-/**
- * Wrapper for application encoding respecting htmlspecialchars
- * 
- * @param string $string
- * @return string Text safe to display in HTML
- * @package wildflower
- */
-function hsc($string) {
-	return htmlspecialchars($string, ENT_QUOTES, Configure::read('App.encoding'));
-}
-
-/**
- * FirePHP debug
+ * Long description for file
  *
- * @param mixed Variables to output to FireBug console
+ * PHP versions 4 and 5
+ *
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @filesource
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.app.config
+ * @since         CakePHP(tm) v 0.10.8.2117
+ * @version       $Revision: 7945 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2008-12-18 20:16:01 -0600 (Thu, 18 Dec 2008) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
-function fb() {
-    if (Configure::read('debug') < 1) {
-        return true;
-    }
-    App::import ('Vendor', 'FirePHP', array('file' => 'FirePHP.class.php'));
-    $instance = FirePHP::getInstance(true);
-    $args = func_get_args();
-    return call_user_func_array(array($instance,'fb'),$args);
-    return true;
-}
-
-function __autoload($className) {
-    /** Wildfower callbacks auto-loading */
-    $fileName = Inflector::underscore($className) . '_callback.php';
-    $filePath = APP . 'controllers' . DS . 'wildflower_callbacks' . DS . $fileName;
-
-    if (file_exists($filePath)) {
-        require_once($filePath);
-    }
-}
-
-class WildflowerCallback {}
+/**
+ *
+ * This file is loaded automatically by the app/webroot/index.php file after the core bootstrap.php is loaded
+ * This is an application wide file to load any function that is not used within a class define.
+ * You can also use this to include or require any files in your application.
+ *
+ */
+/**
+ * The settings below can be used to set additional paths to models, views and controllers.
+ * This is related to Ticket #470 (https://trac.cakephp.org/ticket/470)
+ *
+ * $modelPaths = array('full path to models', 'second full path to models', 'etc...');
+ * $viewPaths = array('this path to views', 'second full path to views', 'etc...');
+ * $controllerPaths = array('this path to controllers', 'second full path to controllers', 'etc...');
+ *
+ */
+ 
+// Wildflower stuff below
+App::import('Vendor', 'wf_bootsrap', array('file' => 'wf_bootsrap.php'));
+App::import('Vendor', 'wf_core', array('file' => 'wf_core.php'));
+$viewPaths        = array(APP . 'wildflower' . DS . 'views');
+$controllerPaths  = array();
+$modelPaths       = array();
+$helperPaths      = array();
+$componentPaths   = array();
+$behaviorPaths    = array();
+$pluginPaths      = array();
+$vendorPaths      = array();
+$localePaths      = array();
+$shellPaths       = array();

@@ -1,7 +1,7 @@
 <?php
 /* SVN FILE: $Id$ */
 /**
- * Short description for file.
+ * XmlHelperTest file
  *
  * Long description for file
  *
@@ -16,7 +16,7 @@
  * @filesource
  * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
- * @package       cake.tests
+ * @package       cake
  * @subpackage    cake.tests.cases.libs.view.helpers
  * @since         CakePHP(tm) v 1.2.0.4206
  * @version       $Revision$
@@ -63,9 +63,9 @@ class TestXml extends Object {
 	}
 }
 /**
- * Short description for class.
+ * XmlHelperTest class
  *
- * @package       cake.tests
+ * @package       cake
  * @subpackage    cake.tests.cases.libs.view.helpers
  */
 class XmlHelperTest extends CakeTestCase {
@@ -80,6 +80,15 @@ class XmlHelperTest extends CakeTestCase {
 		$this->Xml->beforeRender();
 		$manager =& XmlManager::getInstance();
 		$manager->namespaces = array();
+	}
+/**
+ * tearDown method
+ *
+ * @access public
+ * @return void
+ */
+	function tearDown() {
+		unset($this->Xml);
 	}
 /**
  * testAddNamespace method
@@ -193,13 +202,31 @@ class XmlHelperTest extends CakeTestCase {
 		$result = $this->Xml->serialize($data, array('format' => 'tags'));
 		$expected = '<service_day><service_time><service_time_price><dollar>1</dollar><cents>2</cents></service_time_price></service_time></service_day>';
 		$this->assertIdentical($result, $expected);
-
+		
 		$data = array(
 			'Pages' => array('id' => 2, 'url' => 'http://www.url.com/rb/153/?id=bbbb&t=access')
 		);
 		$result = $this->Xml->serialize($data);
 		$expected = '<pages id="2" url="http://www.url.com/rb/153/?id=bbbb&amp;t=access" />';
 		$this->assertIdentical($result, $expected);
+	}
+/**
+ * testSerializeOnMultiDimensionalArray method
+ *
+ * @access public
+ * @return void
+ */
+	function testSerializeOnMultiDimensionalArray() {
+		$data = array(
+			'Statuses' => array(
+				array('Status' => array('id' => 1)),
+				array('Status' => array('id' => 2))
+			)
+		);
+		$result = $this->Xml->serialize($data, array('format' => 'tags'));
+		$expected = '<statuses><status><id>1</id></status><status><id>2</id></status></statuses>';
+		$this->assertIdentical($result, $expected);
+
 	}
 /**
  * testHeader method
@@ -239,15 +266,5 @@ class XmlHelperTest extends CakeTestCase {
 		$expected = '<?xml encoding="UTF-8" someOther="value" ?>';
 		$this->assertIdentical($result, $expected);
 	}
-/**
- * tearDown method
- *
- * @access public
- * @return void
- */
-	function tearDown() {
-		unset($this->Xml);
-	}
 }
-
 ?>

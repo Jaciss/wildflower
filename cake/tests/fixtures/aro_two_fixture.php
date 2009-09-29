@@ -16,7 +16,7 @@
  * @filesource
  * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
- * @package       cake.tests
+ * @package       cake
  * @subpackage    cake.tests.fixtures
  * @since         CakePHP(tm) v 1.2.0.4667
  * @version       $Revision$
@@ -27,7 +27,7 @@
 /**
  * Short description for class.
  *
- * @package       cake.tests
+ * @package       cake
  * @subpackage    cake.tests.fixtures
  */
 class AroTwoFixture extends CakeTestFixture {
@@ -47,7 +47,7 @@ class AroTwoFixture extends CakeTestFixture {
 	var $fields = array(
 		'id' => array('type' => 'integer', 'key' => 'primary'),
 		'parent_id' => array('type' => 'integer', 'length' => 10, 'null' => true),
-		'model' => array('type' => 'string', 'default' => ''),
+		'model' => array('type' => 'string', 'null' => true),
 		'foreign_key' => array('type' => 'integer', 'length' => 10, 'null' => true),
 		'alias' => array('type' => 'string', 'default' => ''),
 		'lft' => array('type' => 'integer', 'length' => 10, 'null' => true),

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: auth.php 8120 2009-03-19 20:25:10Z gwoo $ */
+/* SVN FILE: $Id$ */
 
 /**
  * Authentication component
@@ -20,9 +20,9 @@
  * @package       cake
  * @subpackage    cake.cake.libs.controller.components
  * @since         CakePHP(tm) v 0.10.0.1076
- * @version       $Revision: 8120 $
- * @modifiedby    $LastChangedBy: gwoo $
- * @lastmodified  $Date: 2009-03-19 13:25:10 -0700 (Thu, 19 Mar 2009) $
+ * @version       $Revision$
+ * @modifiedby    $LastChangedBy$
+ * @lastmodified  $Date$
  * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
@@ -263,6 +263,9 @@ class AuthComponent extends Object {
  */
 	function startup(&$controller) {
 		$methods = array_flip($controller->methods);
+		$action = strtolower($controller->params['action']);
+		$allowedActions = array_map('strtolower', $this->allowedActions);
+
 		$isErrorOrTests = (
 			strtolower($controller->name) == 'cakeerror' ||
 			(strtolower($controller->name) == 'tests' && Configure::read() > 0)
@@ -273,7 +276,7 @@ class AuthComponent extends Object {
 
 		$isMissingAction = (
 			$controller->scaffold === false &&
-			!isset($methods[strtolower($controller->params['action'])])
+			!isset($methods[$action])
 		);
 
 		if ($isMissingAction) {
@@ -295,7 +298,7 @@ class AuthComponent extends Object {
 
 		$isAllowed = (
 			$this->allowedActions == array('*') ||
-			in_array($controller->params['action'], $this->allowedActions)
+			in_array($action, $allowedActions)
 		);
 
 		if ($loginAction != $url && $isAllowed) {
@@ -337,6 +340,11 @@ class AuthComponent extends Object {
 			if (!$this->user()) {
 				if (!$this->RequestHandler->isAjax()) {
 					$this->Session->setFlash($this->authError, 'default', array(), 'auth');
+					if (!empty($controller->params['url']) && count($controller->params['url']) >= 2) {
+						$query = $controller->params['url'];
+						unset($query['url'], $query['ext']);
+						$url .= Router::queryString($query, array());
+					}
 					$this->Session->write('Auth.redirect', $url);
 					$controller->redirect($loginAction);
 					return false;

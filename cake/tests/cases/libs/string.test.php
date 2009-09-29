@@ -1,7 +1,7 @@
 <?php
 /* SVN FILE: $Id$ */
 /**
- * Short description for file.
+ * StringTest file
  *
  * Long description for file
  *
@@ -16,7 +16,7 @@
  * @filesource
  * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
- * @package       cake.tests
+ * @package       cake
  * @subpackage    cake.tests.cases.libs
  * @since         CakePHP(tm) v 1.2.0.5432
  * @version       $Revision$
@@ -26,9 +26,9 @@
  */
 App::import('Core', 'String');
 /**
- * Short description for class.
+ * StringTest class
  *
- * @package       cake.tests
+ * @package       cake
  * @subpackage    cake.tests.cases.libs
  */
 class StringTest extends CakeTestCase {
@@ -40,7 +40,8 @@ class StringTest extends CakeTestCase {
  */
 	function testUuidGeneration() {
 		$result = String::uuid();
-		$match = preg_match("/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/", $result);
+		$pattern = "/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/";
+		$match = preg_match($pattern, $result);
 		$this->assertTrue($match);
 	}
 /**
@@ -52,9 +53,11 @@ class StringTest extends CakeTestCase {
 	function testMultipleUuidGeneration() {
 		$check = array();
 		$count = mt_rand(10, 1000);
+		$pattern = "/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/";
+
 		for($i = 0; $i < $count; $i++) {
 			$result = String::uuid();
-			$match = preg_match("/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/", $result);
+			$match = preg_match($pattern, $result);
 			$this->assertTrue($match);
 			$this->assertFalse(in_array($result, $check));
 			$check[] = $result;
@@ -83,6 +86,11 @@ class StringTest extends CakeTestCase {
 		$string = '2 + 2 = 12sum21. Cake is 23adjective45.';
 		$expected = '2 + 2 = 4. Cake is 23adjective45.';
 		$result = String::insert($string, array('sum' => '4', 'adjective' => 'yummy'), array('format' => '/([\d])([\d])%s\\2\\1/'));
+		$this->assertEqual($result, $expected);
+
+		$string = ':web :web_site';
+		$expected = 'www http';
+		$result = String::insert($string, array('web' => 'www', 'web_site' => 'http'));
 		$this->assertEqual($result, $expected);
 
 		$string = '2 + 2 = <sum. Cake is <adjective>.';
@@ -179,8 +187,16 @@ class StringTest extends CakeTestCase {
 		$expected = "We are of course passing.";
 		$this->assertEqual($result, $expected);
 
-		$result = String::insert(':I.am: :not.yet: passing.', array('I.am' => 'We are'), array('before' => ':', 'after' => ':', 'clean' => true));
+		$result = String::insert(
+			':I.am: :not.yet: passing.',
+			array('I.am' => 'We are'),
+			array('before' => ':', 'after' => ':', 'clean' => true)
+		);
 		$expected = "We are passing.";
+		$this->assertEqual($result, $expected);
+
+		$result = String::insert('?-pended result', array('Pre'));
+		$expected = "Pre-pended result";
 		$this->assertEqual($result, $expected);
 	}
 /**

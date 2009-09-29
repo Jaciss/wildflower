@@ -1,7 +1,7 @@
 <?php
 /* SVN FILE: $Id$ */
 /**
- * Short description for file.
+ * TextHelperTest file
  *
  * Long description for file
  *
@@ -16,7 +16,7 @@
  * @filesource
  * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
- * @package       cake.tests
+ * @package       cake
  * @subpackage    cake.tests.cases.libs.view.helpers
  * @since         CakePHP(tm) v 1.2.0.4206
  * @version       $Revision$
@@ -25,14 +25,13 @@
  * @license       http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 App::import('Helper', 'Text');
-
 /**
- * Short description for class.
+ * TextHelperTest class
  *
- * @package       cake.tests
+ * @package       cake
  * @subpackage    cake.tests.cases.libs.view.helpers
  */
-class TextTest extends CakeTestCase {
+class TextHelperTest extends CakeTestCase {
 /**
  * helper property
  *
@@ -48,6 +47,15 @@ class TextTest extends CakeTestCase {
  */
 	function setUp() {
 		$this->Text = new TextHelper();
+	}
+/**
+ * tearDown method
+ *
+ * @access public
+ * @return void
+ */
+	function tearDown() {
+		unset($this->Text);
 	}
 /**
  * testTruncate method
@@ -132,10 +140,20 @@ class TextTest extends CakeTestCase {
 		$text1 = '<p>strongbow isn&rsquo;t real cider</p>';
 		$text2 = '<p>strongbow <strong>isn&rsquo;t</strong> real cider</p>';
 		$text3 = '<img src="what-a-strong-mouse.png" alt="What a strong mouse!" />';
+		$text4 = 'What a strong mouse: <img src="what-a-strong-mouse.png" alt="What a strong mouse!" />';
 
-		$this->assertEqual($this->Text->highlight($text1, 'strong', '<b>\1</b>', true), '<p><b>strong</b>bow isn&rsquo;t real cider</p>');
-		$this->assertEqual($this->Text->highlight($text2, 'strong', '<b>\1</b>', true), '<p><b>strong</b>bow <strong>isn&rsquo;t</strong> real cider</p>');
+		$expected = '<p><b>strong</b>bow isn&rsquo;t real cider</p>';
+		$this->assertEqual($this->Text->highlight($text1, 'strong', '<b>\1</b>', true), $expected);
+
+		$expected = '<p><b>strong</b>bow <strong>isn&rsquo;t</strong> real cider</p>';
+		$this->assertEqual($this->Text->highlight($text2, 'strong', '<b>\1</b>', true), $expected);
+
 		$this->assertEqual($this->Text->highlight($text3, 'strong', '<b>\1</b>', true), $text3);
+
+		$this->assertEqual($this->Text->highlight($text3, array('strong', 'what'), '<b>\1</b>', true), $text3);
+
+		$expected = '<b>What</b> a <b>strong</b> mouse: <img src="what-a-strong-mouse.png" alt="What a strong mouse!" />';
+		$this->assertEqual($this->Text->highlight($text4, array('strong', 'what'), '<b>\1</b>', true), $expected);
 	}
 /**
  * testStripLinks method
@@ -269,21 +287,31 @@ class TextTest extends CakeTestCase {
 		$expected = '...with test text...';
 		$result = $this->Text->excerpt($text, 'test', 9, '...');
 		$this->assertEqual($expected, $result);
-
+		
 		$expected = 'This is a...';
 		$result = $this->Text->excerpt($text, 'not_found', 9, '...');
 		$this->assertEqual($expected, $result);
-
+		
 		$expected = 'This is a phras...';
 		$result = $this->Text->excerpt($text, null, 9, '...');
 		$this->assertEqual($expected, $result);
-
+		
 		$expected = $text;
 		$result = $this->Text->excerpt($text, null, 200, '...');
 		$this->assertEqual($expected, $result);
-
+		
 		$expected = '...phrase...';
 		$result = $this->Text->excerpt($text, 'phrase', 2, '...');
+		$this->assertEqual($expected, $result);
+
+		$phrase = 'This is a phrase with test';
+		$expected = $text;
+		$result = $this->Text->excerpt($text, $phrase, strlen($phrase) + 3, '...');
+		$this->assertEqual($expected, $result);
+
+		$phrase = 'This is a phrase with text';
+		$expected = $text;
+		$result = $this->Text->excerpt($text, $phrase, 10, '...');
 		$this->assertEqual($expected, $result);
 	}
 /**
@@ -316,15 +344,5 @@ class TextTest extends CakeTestCase {
 		$result = $this->Text->toList(array('Dusty', 'Lucky', 'Ned'), 'y');
 		$this->assertEqual($result, 'Dusty, Lucky y Ned');
 	}
-/**
- * tearDown method
- *
- * @access public
- * @return void
- */
-	function tearDown() {
-		unset($this->Text);
-	}
 }
-
 ?>
