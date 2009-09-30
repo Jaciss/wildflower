@@ -1,7 +1,7 @@
-<div class="wildGroups form">
-<?php echo $form->create('WildGroup');?>
+<div class="groups form">
+<?php echo $form->create('Group');?>
 	<fieldset>
- 		<legend><?php __('Add WildGroup');?></legend>
+ 		<legend><?php __('Add Group');?></legend>
 	<?php
 		echo $form->input('name');
 	?>
@@ -10,8 +10,8 @@
 </div>
 <div class="actions">
 	<ul>
-		<li><?php echo $html->link(__('List WildGroups', true), array('action'=>'index'));?></li>
-		<li><?php echo $html->link(__('List Wild Users', true), array('controller'=> 'wild_users', 'action'=>'index')); ?> </li>
-		<li><?php echo $html->link(__('New Wild User', true), array('controller'=> 'wild_users', 'action'=>'add')); ?> </li>
+		<li><?php echo $html->link(__('List Groups', true), array('action'=>'index'));?></li>
+		<li><?php echo $html->link(__('List Users', true), array('controller'=> 'users', 'action'=>'index')); ?> </li>
+		<li><?php echo $html->link(__('New User', true), array('controller'=> 'users', 'action'=>'add')); ?> </li>
 	</ul>
 </div>

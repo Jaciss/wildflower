@@ -86,7 +86,7 @@ class DATABASE_CONFIG {
 		'persistent' => false,
 		'host' => 'localhost',
 		'login' => 'root',
-		'password' => 'syc0l0r3',
+		'password' => '',
 		'database' => 'wildflower',
 	    'port' => 3306
 	);

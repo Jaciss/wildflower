@@ -36,7 +36,7 @@
             $form->input('login', array('between' => '<br />')),
             $form->input('password', array('between' => '<br />')),
             $form->input('confirm_password', array('between' => '<br />', 'type' => 'password')),
-	    $form->input('wild_group_id', array('label'=>'Group', 'between' => '<br />', 'tabindex' => '4')),
+	    $form->input('group_id', array('label'=>'Group', 'between' => '<br />', 'tabindex' => '4')),
             $wild->submit('Create this user'),
             $form->end();
         ?>

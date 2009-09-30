@@ -1,5 +1,5 @@
 <div class="wildGroups index">
-<h2><?php __('WildGroups');?></h2>
+<h2><?php __('Groups');?></h2>
 <p>
 <?php
 echo $paginator->counter(array(
@@ -16,7 +16,7 @@ echo $paginator->counter(array(
 </tr>
 <?php
 $i = 0;
-foreach ($wildGroups as $wildGroup):
+foreach ($groups as $group):
 	$class = null;
 	if ($i++ % 2 == 0) {
 		$class = ' class="altrow"';
@@ -24,21 +24,21 @@ foreach ($wildGroups as $wildGroup):
 ?>
 	<tr<?php echo $class;?>>
 		<td>
-			<?php echo $wildGroup['WildGroup']['id']; ?>
+			<?php echo $group['Group']['id']; ?>
 		</td>
 		<td>
-			<?php echo $wildGroup['WildGroup']['name']; ?>
+			<?php echo $group['Group']['name']; ?>
 		</td>
 		<td>
-			<?php echo $wildGroup['WildGroup']['created']; ?>
+			<?php echo $group['Group']['created']; ?>
 		</td>
 		<td>
-			<?php echo $wildGroup['WildGroup']['modified']; ?>
+			<?php echo $group['Group']['modified']; ?>
 		</td>
 		<td class="actions">
-			<?php echo $html->link(__('View', true), array('action'=>'view', $wildGroup['WildGroup']['id'])); ?>
-			<?php echo $html->link(__('Edit', true), array('action'=>'edit', $wildGroup['WildGroup']['id'])); ?>
-			<?php echo $html->link(__('Delete', true), array('action'=>'delete', $wildGroup['WildGroup']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $wildGroup['WildGroup']['id'])); ?>
+			<?php echo $html->link(__('View', true), array('action'=>'view', $group['Group']['id'])); ?>
+			<?php echo $html->link(__('Edit', true), array('action'=>'edit', $group['Group']['id'])); ?>
+			<?php echo $html->link(__('Delete', true), array('action'=>'delete', $group['Group']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $group['Group']['id'])); ?>
 		</td>
 	</tr>
 <?php endforeach; ?>
@@ -51,8 +51,8 @@ foreach ($wildGroups as $wildGroup):
 </div>
 <div class="actions">
 	<ul>
-		<li><?php echo $html->link(__('New WildGroup', true), array('action'=>'add')); ?></li>
-		<li><?php echo $html->link(__('List Wild Users', true), array('controller'=> 'wild_users', 'action'=>'index')); ?> </li>
-		<li><?php echo $html->link(__('New Wild User', true), array('controller'=> 'wild_users', 'action'=>'add')); ?> </li>
+		<li><?php echo $html->link(__('New Group', true), array('action'=>'add')); ?></li>
+		<li><?php echo $html->link(__('List Users', true), array('controller'=> 'users', 'action'=>'index')); ?> </li>
+		<li><?php echo $html->link(__('New User', true), array('controller'=> 'users', 'action'=>'add')); ?> </li>
 	</ul>
 </div>

@@ -1,9 +1,9 @@
 <?php
 /**
-* Wildflower routes
-*
-* Wildflower reservers these URL's:
-*/
+ * Wildflower routes
+ *
+ * Wildflower reservers these URL's:
+ */
 
 // Home page
 Router::connect('/', array('controller' => 'pages', 'action' => 'view'));
@@ -29,7 +29,8 @@ Router::connect('/wildflower/thumbnail_by_id/*', array('controller' => 'assets',
 App::import('Vendor', 'WfRootPagesCache', array('file' => 'WfRootPagesCache.php'));
 WildflowerRootPagesCache::connect();
 
+
 /**
-* Your routes here...
-*/
+ * Your routes here...
+ */
 

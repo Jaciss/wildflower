@@ -13,7 +13,7 @@ App::import('Core', 'l10n');
 
 class AppController extends Controller {
 
-	public $components = array('Auth', 'Acl', 'Cookie', 'RequestHandler', 'Seo');
+	public $components = array('Acl', 'Auth', 'Cookie', 'RequestHandler', 'Seo');
 	public $currentUserId;
 	public $helpers = array(
 	    'Html', 
@@ -52,7 +52,7 @@ class AppController extends Controller {
         $this->Auth->logoutAction = array('controller' => 'users', 'action' => 'logout', 'admin' => false);
         $this->Auth->autoRedirect = false;
         $this->Auth->allow('update_root_cache'); // requestAction() actions need to be allowed
-        $this->Auth->allowedActions = array('register', 'thanks', 'activate');
+        $this->Auth->allowedActions = array('users/login', 'register', 'thanks', 'activate');
         $this->Auth->loginRedirect = "/$prefix";
 	    
 	    // Site settings
