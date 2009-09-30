@@ -22,4 +22,4 @@ if ($session->check('Message.auth')) {
 echo $form->submit('Log in');
 echo $form->end();
 ?>
-<p id="gohome"><?php echo $html->link("Back to $siteName", '/'); ?></p>
+<p id="gohome"><?php echo $html->link("Back to $siteName", '/').' &nbsp; '.$html->link("Register", '/users/register'); ?></p>

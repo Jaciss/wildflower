@@ -52,6 +52,7 @@ class AppController extends Controller {
         $this->Auth->logoutAction = array('controller' => 'users', 'action' => 'logout', 'admin' => false);
         $this->Auth->autoRedirect = false;
         $this->Auth->allow('update_root_cache'); // requestAction() actions need to be allowed
+        $this->Auth->allowedActions = array('register', 'thanks', 'activate');
         $this->Auth->loginRedirect = "/$prefix";
 	    
 	    // Site settings
@@ -64,7 +65,7 @@ class AppController extends Controller {
 			$this->layout = 'admin_default';
 		} else {
 			$this->layout = 'default';
-			$this->Auth->allow('*');
+			//$this->Auth->allow('*');
 		}
 		
 		// Internationalization

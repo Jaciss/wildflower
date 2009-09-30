@@ -1,9 +1,10 @@
 <?php
+uses('sanitize');
 class UsersController extends AppController {
 
     public $helpers = array('Wildflower.List', 'Time');
     public $pageTitle = 'User Accounts';
-
+    public $components = array('Email');
     /**
      * @TODO shit code, refactor
      *
@@ -164,6 +165,88 @@ class UsersController extends AppController {
             return $this->redirect(array('action' => 'edit', $this->data[$this->modelClass]['id']));
         }
         $this->render('admin_change_password');
+    }
+
+    /**
+    * Allows a user to sign up for a new account
+    * @link http://www.jonnyreeves.co.uk/2008/05/user-registration-with-cakephp-12-and-auth-component/
+    */
+    function register(){
+        // If the user submitted the form…
+        if (!empty($this->data)){
+            // do we require a confirmation email?
+            $reqEmailConf = Configure::read('Wildflower.settings.require_email_confirmation') == 1;
+
+            // Turn the supplied password into the correct Hash.
+            // and move into the 'password' field so it will get saved.
+            App::import('Security');
+            $this->data['User']['password'] = Security::hash($this->data['User']['passwrd'], null, true);
+            if($reqEmailConf) $this->data['User']['group_id'] = 3;
+            else $this->data['User']['group_id'] = 4;
+            // Always Sanitize any data from users!
+            $this->User->data = Sanitize::clean($this->data);
+            if ($this->User->save()){
+                // Use a private method to send a confirmation email
+                if($reqEmailConf) $this->__sendConfirmationEmail($this->User->getLastInsertID());
+                // Success! Redirect to a thanks page.
+                $this->redirect('/users/thanks');
+            }
+            // The plain text password supplied has been hashed into the 'password' field so
+            // should now be nulled so it doesn't get render in the HTML if the save() fails
+            $this->data['User']['passwrd'] = null;
+            $this->data['User']['confirm_password'] = null;
+        }
+    }
+
+    function thanks(){
+        //hooks?
+    }
+
+    /**
+    * Send out an activation email to the user.id specified by $user_id
+    *  @param Int $user_id User to send activation email to
+    *  @return Boolean indicates success
+    *  @link http://www.jonnyreeves.co.uk/2008/06/cakephp-activating-user-account-via-email/
+    */
+    function __sendConfirmationEmail($user_id) {
+        $user = $this->User->find(array('User.id' => $user_id), array('User.email', 'User.login'), null, false);
+        if ($user === false) {
+            debug(__METHOD__." failed to retrieve User data for user.id: {$user_id}");
+            return false;
+        }
+        $link = 'http://' . env('HTTP_HOST') . str_replace('register','activate',env('REQUEST_URI')). DS . $user_id . DS . $this->User->getActivationHash();
+        //echo 'activate link: <a href="'.$link.">$link</a>";
+
+        // Set data for the "view" of the Email
+        $this->set('activate_url', $link);
+        $this->set('login', $this->data['User']['login']);
+
+        $this->Email->to = $user['User']['email'];
+        $this->Email->subject = Configure::read('Wildflower.settings.site_name') . ' - Please confirm your email address';
+        $this->Email->from = Configure::read('Wildflower.settings.contact_email');
+        $this->Email->template = 'user_confirm';
+        $this->Email->sendAs = 'text';   // you probably want to use both :)
+        return $this->Email->send();
+    }
+
+    /**
+    * Activates a user account from an incoming link
+    *
+    *  @param Int $user_id User.id to activate
+    *  @param String $in_hash Incoming Activation Hash from the email
+    *  @link http://www.jonnyreeves.co.uk/2008/06/cakephp-activating-user-account-via-email/
+    */
+    function activate($user_id = null, $in_hash = null) {
+        $this->User->id = $user_id;
+        if ($this->User->exists() && ($in_hash == $this->User->getActivationHash())){
+            // Update the active flag in the database
+            //$this->User->saveField(‘active’, 1);
+            $this->User->saveField('group_id', 4);
+            // Let the user know they can now log in!
+            $this->Session->setFlash('Your account has been activated, please log in.');
+            $this->redirect('login');
+        }
+        // Activation failed, render ‘/views/user/activate.ctp’ which should tell the user.
     }
 
 }

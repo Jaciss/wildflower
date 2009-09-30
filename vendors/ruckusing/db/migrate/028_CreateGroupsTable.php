@@ -20,10 +20,12 @@ class CreateGroupsTable extends Ruckusing_BaseMigration {
 		
 		$this->execute("UPDATE users SET group_id = '2' WHERE login LIKE 'admin'");
 		$this->execute("UPDATE users SET group_id = '4' WHERE login LIKE 'tester'");
+		$this->execute("INSERT into `settings` (NULL , 'require_email_confirmation', '1', '', 'checkbox', 'Require email confirmation for account activation', '13')");
 	}
 
 	function down() {
         $this->drop_table('groups');
 		$this->remove_column('users', 'group_id');
+		$this->execute("DELETE FROM `settings` WHERE name LIKE 'require_email_confirmation'");
 	}
 }
